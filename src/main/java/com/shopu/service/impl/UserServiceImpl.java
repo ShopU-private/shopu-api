@@ -28,13 +28,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String phoneNumber) {
         User user = userRepository.findByPhoneNumber(phoneNumber);
-        if(user != null){
+        if (user != null) {
             return user;
-        }else {
-            User newUser = new User(phoneNumber);
-            newUser.setRole(Role.USER);
-            return userRepository.save(newUser);
         }
+        User newUser = new User(phoneNumber);
+        newUser.setRole(Role.USER);
+        return userRepository.save(newUser);
     }
 
     @Override
@@ -55,19 +54,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean updateCart(String userId, String cartProductId, boolean addItem) {
+    public ApiResponse<Boolean> updateCart(String userId, String cartItemId, boolean addItem) {
         User user = userRepository.findById(userId).orElse(null);
 
         if(user == null) {
             throw new ApplicationException("User not found");
         }
+
         if(addItem){
-            user.getCart_items_id().add(cartProductId);
+            user.getCart_items_id().add(cartItemId);
         }else {
-            user.getCart_items_id().remove(cartProductId);
+            user.getCart_items_id().remove(cartItemId);
         }
         userRepository.save(user);
-        return true;
+        return new ApiResponse<>(true, HttpStatus.OK);
     }
 
     @Override

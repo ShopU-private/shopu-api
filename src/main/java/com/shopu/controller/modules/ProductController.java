@@ -2,6 +2,7 @@ package com.shopu.controller.modules;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
+import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.entities.Product;
 import com.shopu.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,18 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<Boolean>> addProduct(@RequestBody ProductCreateRequest createRequest){
         ApiResponse<Boolean> response = productService.addProduct(createRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PutMapping("/update-product")
+    public ResponseEntity<ApiResponse<Boolean>> updateProduct(@RequestBody ProductUpdateRequest updateRequest){
+        ApiResponse<Boolean> response = productService.updateProduct(updateRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @DeleteMapping("/remove-product/{id}")
+    public ResponseEntity<ApiResponse<Boolean>> removeProduct(@PathVariable String id){
+        ApiResponse<Boolean> response = productService.removeProduct(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

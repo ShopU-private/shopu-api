@@ -18,7 +18,7 @@ public interface UserService {
 
     void updateLastSignIn(String id);
 
-    Boolean updateCart(String userId, String cartProductId, boolean addItem);
+    ApiResponse<Boolean> updateCart(String userId, String cartItemId, boolean addItem);
 
     ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress);
 

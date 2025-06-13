@@ -27,7 +27,7 @@ public class CartProductServiceImpl implements CartProductService {
         cartProduct.setProductId(addRequest.getProductId());
         cartProduct.setQuantity(addRequest.getQuantity());
         String id = cartProductRepository.save(cartProduct).getId();
-        userService.updateCart(addRequest.getUserId(), addRequest.getProductId(), true);
+        userService.updateCart(addRequest.getUserId(), id, true);
         return new ApiResponse<>(cartProduct, HttpStatus.OK);
     }
 
@@ -37,7 +37,7 @@ public class CartProductServiceImpl implements CartProductService {
         if(cartProduct == null){
             throw new ApplicationException("Product not found");
         }
-        userService.updateCart(userId, cartProduct.getId(), false);
+        userService.updateCart(userId, cartProductId, false);
         cartProductRepository.delete(cartProduct);
         return new ApiResponse<>(true, HttpStatus.OK);
     }

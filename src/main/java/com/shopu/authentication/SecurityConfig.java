@@ -30,9 +30,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer :: disable)
                 .authorizeHttpRequests(authorize ->
-                authorize.requestMatchers("/auth/login", "/auth/signup",
-                                "/api/v1/cart-products/**", "api/v1/products/add",
+                authorize.requestMatchers("/auth/login",
+                                "/api/v1/cart-products/**",
+                                "/api/v1/products/**",
                                 "/api/v1/address/**",
+                                "/api/v1/users/**",
                                 "/mail/**", "/swagger-ui/**")
                 .permitAll()
                         // for restrict api access for only admin access

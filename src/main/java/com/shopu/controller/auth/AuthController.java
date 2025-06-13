@@ -22,12 +22,6 @@ public class AuthController {
         return authService.login(loginRequest);
     }
 
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    @PostMapping("/admin-signup")
-//    public ApiResponse<User> adminSignUp(@Valid @RequestBody SignUpRequest signUpRequest){
-//        return authService.signUp(signUpRequest);
-//    }
-
     @PostMapping("/refresh-token")
     public ApiResponse<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
         return authService.refreshToken(request);

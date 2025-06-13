@@ -1,22 +1,16 @@
-package com.shopu.model.entities;
+package com.shopu.model.dtos.requests.update;
 
 import com.shopu.model.enums.Category;
 import com.shopu.model.enums.DosageForm;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class Product {
-    @Id
-    private String id;
+@AllArgsConstructor
+public class ProductUpdateRequest {
+    private String productId;
 
     private String brand;
 
@@ -39,12 +33,4 @@ public class Product {
     private float price;
 
     private float discount;
-
-    private List<String> images;
-
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    private LocalDateTime updatedAt;
 }
-
-//    private <Type> reviews;

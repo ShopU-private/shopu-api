@@ -23,13 +23,6 @@ public class UserController {
         return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
     }
 
-//    @PutMapping("/{id}/address-update")
-//    public ResponseEntity<ApiResponse<Boolean>> updateAddress(@PathVariable String id, @RequestBody Address address){
-//        ApiResponse<Boolean> response = userService.updateAddress(id, address);
-//        return ResponseEntity.status(response.getStatus()).body(response);
-//    }
-
-
     @PutMapping("/{id}/mob-update")
     public ResponseEntity<ApiResponse<Boolean>> updateMobileNumber(@PathVariable String id, @RequestParam String newMobileNumber){
         ApiResponse<Boolean> response = userService.updateMobileNumber(id, newMobileNumber);
