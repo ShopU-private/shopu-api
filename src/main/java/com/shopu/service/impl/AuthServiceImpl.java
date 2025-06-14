@@ -5,8 +5,10 @@ import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.LoginRequest;
 import com.shopu.model.dtos.response.AuthResponse;
+import com.shopu.model.entities.SMS;
 import com.shopu.model.entities.User;
 import com.shopu.service.AuthService;
+import com.shopu.service.SMSService;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,15 +29,26 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private SMSService smsService;
+
     @Override
-    public ApiResponse<User> login(LoginRequest loginRequest) {
-        if(!Objects.equals(loginRequest.getOtp(), "1234")){
-            return new ApiResponse<>("Incorrect OTP", HttpStatus.BAD_REQUEST);
+    public ApiResponse<AuthResponse> login(LoginRequest loginRequest) {
+
+        SMS sms = smsService.findById(loginRequest.getSmsId());
+
+        if (sms == null || !sms.getPhoneNumber().equals(loginRequest.getPhoneNumber())) {
+            throw new ApplicationException("Unauthorized access or invalid SMS ID");
         }
+
+        if (!passwordEncoder.matches(loginRequest.getOtp(), sms.getOtpHash())) {
+            return new ApiResponse<>("Incorrect OTP", HttpStatus.BAD_GATEWAY);
+        }
+        smsService.delete(sms.getId());
         User user = userService.getUser(loginRequest.getPhoneNumber());
         String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         userService.updateLastSignIn(user.getId());
-        return new ApiResponse<>(user, HttpStatus.OK, token);
+        return new ApiResponse<>(new AuthResponse(token), HttpStatus.OK);
     }
 
     @Override

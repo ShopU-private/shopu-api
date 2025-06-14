@@ -8,7 +8,7 @@ import com.shopu.model.entities.User;
 import java.util.Map;
 
 public interface AuthService {
-    ApiResponse<User> login(LoginRequest loginRequest);
+    ApiResponse<AuthResponse> login(LoginRequest loginRequest);
 
     ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
 

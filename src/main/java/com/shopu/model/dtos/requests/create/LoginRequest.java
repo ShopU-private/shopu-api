@@ -10,5 +10,6 @@ import lombok.Setter;
 public class LoginRequest {
     private String phoneNumber;
     private String otp;
+    private String smsId;
 }
 
