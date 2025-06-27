@@ -2,9 +2,9 @@ package com.shopu.controller.auth;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.LoginRequest;
 import com.shopu.model.dtos.response.AuthResponse;
-import com.shopu.model.entities.User;
 import com.shopu.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,8 +18,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        return authService.login(loginRequest);
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
+        ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping("/refresh-token")

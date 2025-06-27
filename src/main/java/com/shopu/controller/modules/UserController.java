@@ -18,9 +18,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/fetch")
-    public ApiResponse<List<User>> getAllUser(){
-        return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<User>> fetchById(@PathVariable String id){
+        ApiResponse<User> response = userService.fetchById(id);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PutMapping("/{id}/mob-update")
@@ -28,4 +29,10 @@ public class UserController {
         ApiResponse<Boolean> response = userService.updateMobileNumber(id, newMobileNumber);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
+    @GetMapping("/fetch")
+    public ApiResponse<List<User>> getAllUser(){
+        return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
+    }
+
 }

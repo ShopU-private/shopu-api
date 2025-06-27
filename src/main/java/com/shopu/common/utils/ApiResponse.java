@@ -24,4 +24,8 @@ public class ApiResponse<T> {
         this.data = data;
         this.status = status.value();
     }
+    public ApiResponse(T data, int status){
+        this.data = data;
+        this.status = status;
+    }
 }

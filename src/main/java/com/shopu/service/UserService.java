@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface UserService {
 
-    User getUser(String phoneNumber);
+    ApiResponse<User> getUser(String phoneNumber);
 
     User findByPhoneNumber(String phoneNumber);
+
+    ApiResponse<User> fetchById(String id);
 
     User findById(String userId);
 
@@ -23,4 +25,5 @@ public interface UserService {
     ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress);
 
     ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
+
 }

@@ -37,7 +37,7 @@ public class SMSServiceImpl implements SMSService {
         /// Currently i sent OTP on my Gmail
 
         try{
-            String otp = String.valueOf(1000 + new Random().nextInt(9999));
+            String otp = String.valueOf(1000 + new Random().nextInt(9000));
             SMS sms = new SMS(phoneNumber, passwordEncoder.encode(otp)); // email is phoneNumber
             String sessionId = smsRepository.save(sms).getId();
 

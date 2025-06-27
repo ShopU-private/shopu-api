@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+
 @Service
 public class AddressServiceImpl implements AddressService {
 
@@ -43,6 +46,21 @@ public class AddressServiceImpl implements AddressService {
         }
         modelMapper.map(updateRequest, address);
         return new ApiResponse<>(addressRepository.save(address), HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<List<Address>> fetchAddress(List<String> ids) {
+        if(ids.isEmpty()){
+            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+        }
+
+        List<Address> addresses = addressRepository.findAllById(ids);
+
+        if(addresses.isEmpty()){
+            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+        }
+
+        return new ApiResponse<>(addresses, HttpStatus.OK);
     }
 
     @Override

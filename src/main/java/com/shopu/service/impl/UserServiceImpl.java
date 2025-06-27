@@ -26,19 +26,26 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User getUser(String phoneNumber) {
+    public ApiResponse<User> getUser(String phoneNumber) {
         User user = userRepository.findByPhoneNumber(phoneNumber);
         if (user != null) {
-            return user;
+            return new ApiResponse<>(user, HttpStatus.OK);
         }
         User newUser = new User(phoneNumber);
         newUser.setRole(Role.USER);
-        return userRepository.save(newUser);
+        return new ApiResponse<>(userRepository.save(newUser), HttpStatus.CREATED);
     }
 
     @Override
     public User findByPhoneNumber(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public ApiResponse<User> fetchById(String id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new ApplicationException("User not found"));
+        return new ApiResponse<>(user, HttpStatus.OK);
     }
 
     @Override
@@ -72,7 +79,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress) {
-        System.out.println(userId);
         User user = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new ApplicationException("User not found");

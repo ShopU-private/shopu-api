@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("api/v1/address")
@@ -26,6 +28,12 @@ public class AddressController {
     @PutMapping("/update")
     public ResponseEntity<ApiResponse<Address>> updateAddress(@RequestBody AddressUpdateRequest updateRequest){
         ApiResponse<Address> response = addressService.updateAddress(updateRequest);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/by-ids")
+    public ResponseEntity<ApiResponse<List<Address>>> fetchAddress(@RequestBody List<String> ids){
+        ApiResponse<List<Address>> response = addressService.fetchAddress(ids);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

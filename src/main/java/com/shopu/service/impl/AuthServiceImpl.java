@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private SMSService smsService;
 
     @Override
-    public ApiResponse<AuthResponse> login(LoginRequest loginRequest) {
+    public ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest) {
 
         SMS sms = smsService.findById(loginRequest.getSmsId());
 
@@ -44,11 +44,16 @@ public class AuthServiceImpl implements AuthService {
         if (!passwordEncoder.matches(loginRequest.getOtp(), sms.getOtpHash())) {
             return new ApiResponse<>("Incorrect OTP", HttpStatus.BAD_GATEWAY);
         }
+
         smsService.delete(sms.getId());
-        User user = userService.getUser(loginRequest.getPhoneNumber());
+        ApiResponse<User> response = userService.getUser(loginRequest.getPhoneNumber());
+
+        User user = response.getData();
+
+
         String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         userService.updateLastSignIn(user.getId());
-        return new ApiResponse<>(new AuthResponse(token), HttpStatus.OK);
+        return new ApiResponse<>(new AuthResponse(token), response.getStatus());
     }
 
     @Override
