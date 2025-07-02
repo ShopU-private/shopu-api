@@ -29,7 +29,7 @@ public class JwtUtil {
     // Generate Token
     public String generateAccessToken(String userId, Role role) {
 
-        long ACCESS_TOKEN_EXPIRATION_TIME = 86400000;  // 24 hours in milliseconds
+        long ACCESS_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000;
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("role", role.name())

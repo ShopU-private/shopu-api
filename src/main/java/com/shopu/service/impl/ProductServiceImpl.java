@@ -56,4 +56,9 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse<List<Product>> fetchAllProduct() {
         return new ApiResponse<>(productRepository.findAll(), HttpStatus.OK);
     }
+
+    @Override
+    public Product findById(String id) {
+        return productRepository.findById(id).orElse(null);
+    }
 }

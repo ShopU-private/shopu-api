@@ -7,8 +7,12 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CartProductAddRequest {
+public class CartItemAddRequest {
     private String userId;
     private String productId;
-    private int quantity;
+    private String imageUrl;
+    private String productName;
+    private double price;
+    private double discount;
+    private int buyQuantity;
 }

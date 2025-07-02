@@ -9,5 +9,6 @@ public enum DosageForm {
     CREAM,
     DROPS,
     INHALER,
-    POWDER
+    POWDER,
+    SPRAY
 }

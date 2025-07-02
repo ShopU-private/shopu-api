@@ -4,7 +4,6 @@ import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.AddressRequest;
 import com.shopu.model.dtos.requests.update.AddressUpdateRequest;
 import com.shopu.model.entities.Address;
-import com.shopu.model.entities.CartProduct;
 
 import java.util.List;
 

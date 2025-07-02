@@ -12,12 +12,16 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartProduct {
-
+public class CartItem {
     @Id
     private String id;
     private String userId;
     private String productId;
-    private int quantity;
+    private String imageUrl;
+    private String productName;
+    private double price;
+    private double discountedPrice;
+    private int buyQuantity;
     private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 }

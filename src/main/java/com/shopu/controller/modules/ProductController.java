@@ -7,6 +7,7 @@ import com.shopu.model.entities.Product;
 import com.shopu.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,18 +20,22 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<Boolean>> addProduct(@RequestBody ProductCreateRequest createRequest){
         ApiResponse<Boolean> response = productService.addProduct(createRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/update-product")
     public ResponseEntity<ApiResponse<Boolean>> updateProduct(@RequestBody ProductUpdateRequest updateRequest){
         ApiResponse<Boolean> response = productService.updateProduct(updateRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @DeleteMapping("/remove-product/{id}")
     public ResponseEntity<ApiResponse<Boolean>> removeProduct(@PathVariable String id){
         ApiResponse<Boolean> response = productService.removeProduct(id);

@@ -16,4 +16,6 @@ public interface ProductService {
     ApiResponse<Boolean> updateProduct(ProductUpdateRequest updateRequest);
 
     ApiResponse<Boolean> removeProduct(String id);
+
+    Product findById(String id);
 }
