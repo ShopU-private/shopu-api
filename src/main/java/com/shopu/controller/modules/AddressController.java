@@ -31,9 +31,9 @@ public class AddressController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/by-ids")
-    public ResponseEntity<ApiResponse<List<Address>>> fetchAddress(@RequestBody List<String> ids){
-        ApiResponse<List<Address>> response = addressService.fetchAddress(ids);
+    @GetMapping("/by/{userId}")
+    public ResponseEntity<ApiResponse<List<Address>>> fetchAddress(@PathVariable String userId){
+        ApiResponse<List<Address>> response = addressService.fetchAddress(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

@@ -30,8 +30,8 @@ public class CartItemController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/fetch")
-    public ResponseEntity<ApiResponse<List<CartItem>>> fetchCartItem(@RequestParam String userId){
+    @GetMapping("/fetch/{userId}")
+    public ResponseEntity<ApiResponse<List<CartItem>>> fetchCartItem(@PathVariable String userId){
         ApiResponse<List<CartItem>> response = cartItemService.fetchCartItem(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }

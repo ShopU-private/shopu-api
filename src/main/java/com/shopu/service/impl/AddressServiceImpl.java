@@ -5,6 +5,7 @@ import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.AddressRequest;
 import com.shopu.model.dtos.requests.update.AddressUpdateRequest;
 import com.shopu.model.entities.Address;
+import com.shopu.model.entities.User;
 import com.shopu.repository.AddressRepository;
 import com.shopu.service.AddressService;
 import com.shopu.service.UserService;
@@ -49,12 +50,14 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public ApiResponse<List<Address>> fetchAddress(List<String> ids) {
-        if(ids.isEmpty()){
-            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+    public ApiResponse<List<Address>> fetchAddress(String userId) {
+        User user = userService.findById(userId);
+        if(user == null){
+            throw new ApplicationException("User not found");
         }
+        List<String> addressIds = user.getAddress_ids();
 
-        List<Address> addresses = addressRepository.findAllById(ids);
+        List<Address> addresses = addressRepository.findAllById(addressIds);
 
         if(addresses.isEmpty()){
             return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);

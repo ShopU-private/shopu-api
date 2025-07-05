@@ -15,5 +15,5 @@ public interface AddressService {
 
     ApiResponse<Boolean> removeAddress(String userId, String addressId);
 
-    ApiResponse<List<Address>> fetchAddress(List<String> ids);
+    ApiResponse<List<Address>> fetchAddress(String userId);
 }

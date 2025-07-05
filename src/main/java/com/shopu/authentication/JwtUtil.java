@@ -39,20 +39,13 @@ public class JwtUtil {
                 .compact();
     }
 
-    // Validate Access Token
+    // Validate Access TokenValidateAccessToken
     public boolean validateAccessToken(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
-                    .build()
-                    .parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (ExpiredJwtException e) {
-            return false;
-        } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Invalid JWT token: " + e.getMessage());
-            return false;
-        }
+        Jws<Claims> claims = Jwts.parserBuilder()
+                .setSigningKey(SECRET_KEY)
+                .build()
+                .parseClaimsJws(token);
+        return !claims.getBody().getExpiration().before(new Date());
     }
 
     // Refresh Access Token

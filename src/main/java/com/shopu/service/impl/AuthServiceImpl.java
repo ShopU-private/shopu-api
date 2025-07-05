@@ -50,7 +50,6 @@ public class AuthServiceImpl implements AuthService {
 
         User user = response.getData();
 
-
         String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         userService.updateLastSignIn(user.getId());
         return new ApiResponse<>(new AuthResponse(token), response.getStatus());
