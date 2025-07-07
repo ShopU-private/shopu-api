@@ -2,6 +2,7 @@ package com.shopu.model.entities;
 
 import com.shopu.model.enums.Category;
 import com.shopu.model.enums.DosageForm;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Product {
     @Id
     private String id;

@@ -2,7 +2,9 @@ package com.shopu.model.entities;
 
 import com.shopu.model.enums.Role;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -22,6 +24,8 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
     @Id
     private String id;
@@ -35,9 +39,9 @@ public class User implements UserDetails {
     @Field(name = "user_role")
     private Role role;
 
-    private List<String> order_ids;
-    private List<String> cart_items_id;
-    private List<String> address_ids;
+    private List<String> orderIds;
+    private List<String> cartItemsId;
+    private List<String> addressIds;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -64,8 +68,8 @@ public class User implements UserDetails {
     public User(String phoneNumber) {
         this.phoneNumber = phoneNumber;
         this.createdAt = LocalDateTime.now();
-        this.order_ids = new ArrayList<>();
-        this.cart_items_id = new ArrayList<>();
-        this.address_ids = new ArrayList<>();
+        this.orderIds = new ArrayList<>();
+        this.cartItemsId = new ArrayList<>();
+        this.addressIds = new ArrayList<>();
     }
 }

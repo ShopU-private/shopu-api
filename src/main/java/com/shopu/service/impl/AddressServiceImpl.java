@@ -55,7 +55,7 @@ public class AddressServiceImpl implements AddressService {
         if(user == null){
             throw new ApplicationException("User not found");
         }
-        List<String> addressIds = user.getAddress_ids();
+        List<String> addressIds = user.getAddressIds();
 
         List<Address> addresses = addressRepository.findAllById(addressIds);
 

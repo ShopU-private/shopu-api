@@ -4,6 +4,7 @@ import com.shopu.model.enums.Category;
 import com.shopu.model.enums.DosageForm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductCreateRequest {
     private String brand;
 

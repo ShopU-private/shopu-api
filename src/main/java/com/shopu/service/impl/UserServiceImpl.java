@@ -2,7 +2,6 @@ package com.shopu.service.impl;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
-import com.shopu.model.dtos.requests.create.AddressRequest;
 import com.shopu.model.entities.User;
 import com.shopu.model.enums.Role;
 import com.shopu.repository.UserRepository;
@@ -69,9 +68,9 @@ public class UserServiceImpl implements UserService {
         }
 
         if(addItem){
-            user.getCart_items_id().add(cartItemId);
+            user.getCartItemsId().add(cartItemId);
         }else {
-            user.getCart_items_id().remove(cartItemId);
+            user.getCartItemsId().remove(cartItemId);
         }
         userRepository.save(user);
         return new ApiResponse<>(true, HttpStatus.OK);
@@ -84,9 +83,9 @@ public class UserServiceImpl implements UserService {
             throw new ApplicationException("User not found");
         }
         if(addAddress){
-            user.getAddress_ids().add(addressId);
+            user.getAddressIds().add(addressId);
         }else {
-            user.getAddress_ids().remove(addressId);
+            user.getAddressIds().remove(addressId);
         }
         userRepository.save(user);
         return new ApiResponse<>(true, HttpStatus.OK);

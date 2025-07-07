@@ -66,7 +66,7 @@ public class CartItemServiceImpl implements CartItemService {
         if (user == null) {
             throw new ApplicationException("User not found");
         }
-        List<String> ids = user.getCart_items_id(); // IDs of CartProduct
+        List<String> ids = user.getCartItemsId(); // IDs of CartProduct
         if (ids == null || ids.isEmpty()) {
             return new ApiResponse<>("Cart is empty", HttpStatus.BAD_REQUEST);
         }
