@@ -22,6 +22,9 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
+        if (SECRET_KEY_ENCODED == null) {
+            throw new IllegalStateException("JWT secret is not configured properly.");
+        }
         byte[] decodedKey = Base64.getDecoder().decode(SECRET_KEY_ENCODED);
         SECRET_KEY = Keys.hmacShaKeyFor(decodedKey);
     }
