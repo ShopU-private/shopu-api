@@ -42,9 +42,15 @@ public class ProductController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/fetch")
-    public ResponseEntity<ApiResponse<List<Product>>> fetchAllProduct(){
-        ApiResponse<List<Product>> response = productService.fetchAllProduct();
+    @GetMapping("/fetch/{category}")
+    public ResponseEntity<ApiResponse<List<Product>>> fetchAllProduct(@PathVariable String category){
+        ApiResponse<List<Product>> response = productService.fetchAllProduct(category);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<Product>>> searchProducts(@RequestParam String query){
+        ApiResponse<List<Product>> response = productService.searchProducts(query);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

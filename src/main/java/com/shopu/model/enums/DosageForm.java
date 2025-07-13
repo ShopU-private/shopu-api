@@ -10,5 +10,7 @@ public enum DosageForm {
     DROPS,
     INHALER,
     POWDER,
-    SPRAY
+    SPRAY,
+    LIQUID,
+    STANDARD
 }

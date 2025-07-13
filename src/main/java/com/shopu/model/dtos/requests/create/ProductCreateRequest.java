@@ -26,6 +26,8 @@ public class ProductCreateRequest {
 
     private String strength;
 
+    private String quantity;
+
     private boolean prescriptionRequired;
 
     private int stock;

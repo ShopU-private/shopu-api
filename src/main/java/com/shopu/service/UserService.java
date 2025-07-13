@@ -24,6 +24,7 @@ public interface UserService {
 
     ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress);
 
-    ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
+    ApiResponse<Boolean> updateOrder(String userId, String orderId);
 
+    ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
 }

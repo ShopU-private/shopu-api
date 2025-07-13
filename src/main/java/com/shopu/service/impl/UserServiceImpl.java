@@ -53,13 +53,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateLastSignIn(String id) {
-        User user = findById(id);
-        user.setLastSignedAt(LocalDateTime.now());
-        userRepository.save(user);
-    }
-
-    @Override
     public ApiResponse<Boolean> updateCart(String userId, String cartItemId, boolean addItem) {
         User user = userRepository.findById(userId).orElse(null);
 
@@ -92,6 +85,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ApiResponse<Boolean> updateOrder(String userId, String orderId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if(user == null){
+            throw new ApplicationException("User not found");
+        }
+        user.getCartItemsId().clear();
+        user.getOrderIds().add(orderId);
+        userRepository.save(user);
+        return new ApiResponse<>(true, HttpStatus.OK);
+    }
+
+    @Override
     public ApiResponse<Boolean> updateMobileNumber(String id, String newMobileNumber) {
         User user = Optional.ofNullable(findById(id)).orElseThrow(
                 () -> new ApplicationException("User not found"));
@@ -109,5 +114,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUser() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public void updateLastSignIn(String id) {
+        User user = findById(id);
+        user.setLastSignedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

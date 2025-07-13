@@ -5,6 +5,7 @@ import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.entities.Product;
+import com.shopu.model.enums.Category;
 import com.shopu.repository.ProductRepository;
 import com.shopu.service.ProductService;
 import org.modelmapper.ModelMapper;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -53,8 +54,20 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse<List<Product>> fetchAllProduct() {
-        return new ApiResponse<>(productRepository.findAll(), HttpStatus.OK);
+    public ApiResponse<List<Product>> searchProducts(String query) {
+        if (query.trim().isEmpty()) {
+            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+        }
+        List<Product> result = productRepository
+                .findByNameContainingIgnoreCase(query);
+        return new ApiResponse<>(result, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<List<Product>> fetchAllProduct(String category) {
+        Category c = Category.valueOf(category.toUpperCase());
+        List<Product> products = productRepository.findAllByCategory(c);
+        return new ApiResponse<>(products, HttpStatus.OK);
     }
 
     @Override

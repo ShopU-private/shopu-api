@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,11 +26,14 @@ public class Product {
 
     private String manufacturerName;
 
+    @Indexed
     private Category category;
 
     private DosageForm dosageForm;
 
     private String strength;
+
+    private String quantity;
 
     private boolean prescriptionRequired;
 

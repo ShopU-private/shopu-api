@@ -11,11 +11,13 @@ public interface ProductService {
 
     ApiResponse<Boolean> addProduct(ProductCreateRequest createRequest);
 
-    ApiResponse<List<Product>> fetchAllProduct();
+    ApiResponse<List<Product>> fetchAllProduct(String category);
 
     ApiResponse<Boolean> updateProduct(ProductUpdateRequest updateRequest);
 
     ApiResponse<Boolean> removeProduct(String id);
+
+    ApiResponse<List<Product>> searchProducts(String query);
 
     Product findById(String id);
 }

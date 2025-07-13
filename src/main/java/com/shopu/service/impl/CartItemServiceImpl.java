@@ -30,6 +30,23 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public ApiResponse<CartItem> addToCart(CartItemAddRequest addRequest) {
+        User user = userService.findById(addRequest.getUserId());
+        if(user == null){
+            throw new ApplicationException("User not found");
+        }
+
+        List<CartItem> cartItems = cartItemRepository.findAllById(user.getCartItemsId());
+
+        for (CartItem item : cartItems){
+            if(item.getProductId().equals(addRequest.getProductId())){
+                item.setPrice(item.getPrice() + (addRequest.getPrice() * addRequest.getBuyQuantity()));
+                item.setDiscountedPrice(item.getDiscountedPrice() + ((addRequest.getPrice() - addRequest.getDiscount()) * addRequest.getBuyQuantity()));
+                item.setBuyQuantity(addRequest.getBuyQuantity() + item.getBuyQuantity());
+                item.setUpdatedAt(LocalDateTime.now());
+                return new ApiResponse<>(cartItemRepository.save(item), HttpStatus.CREATED);
+            }
+        }
+
         CartItem cartItem = new CartItem(
                 null,
                 addRequest.getUserId(),
@@ -74,5 +91,15 @@ public class CartItemServiceImpl implements CartItemService {
         return new ApiResponse<>(cartItems, HttpStatus.OK);
     }
 
+    @Override
+    public List<CartItem> fetchCartItems(List<String> cartItemIds) {
+        return cartItemRepository.findAllById(cartItemIds);
+    }
+
+    @Override
+    public Boolean deleteCartItems(List<String> cartItemIds) {
+        cartItemRepository.deleteAllById(cartItemIds);
+        return true;
+    }
 }
 
