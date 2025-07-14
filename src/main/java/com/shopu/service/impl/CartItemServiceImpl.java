@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -85,7 +86,7 @@ public class CartItemServiceImpl implements CartItemService {
         }
         List<String> ids = user.getCartItemsId(); // IDs of CartProduct
         if (ids == null || ids.isEmpty()) {
-            return new ApiResponse<>("Cart is empty", HttpStatus.BAD_REQUEST);
+            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
         }
         List<CartItem> cartItems = cartItemRepository.findAllById(ids);
         return new ApiResponse<>(cartItems, HttpStatus.OK);
