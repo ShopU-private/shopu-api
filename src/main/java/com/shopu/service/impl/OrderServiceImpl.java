@@ -3,11 +3,13 @@ package com.shopu.service.impl;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
+import com.shopu.model.entities.Address;
 import com.shopu.model.entities.CartItem;
 import com.shopu.model.entities.Order;
 import com.shopu.model.entities.User;
 import com.shopu.model.enums.OrderStatus;
 import com.shopu.repository.OrderRepository;
+import com.shopu.service.AddressService;
 import com.shopu.service.CartItemService;
 import com.shopu.service.OrderService;
 import com.shopu.service.UserService;
@@ -34,27 +36,34 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private AddressService addressService;
+
     @Override
     public ApiResponse<Order> createOrder(CreateOrderRequest orderRequest) {
         User user = userService.findById(orderRequest.getUserId());
         if(user == null){
             throw new ApplicationException("User not found");
         }
-        if(orderRequest.getCartItemIds().isEmpty()){
+        Address address = addressService.findById(orderRequest.getAddressId());
+        if(address == null){
+            throw new ApplicationException("Address not found");
+        }
+        if(user.getCartItemsId().isEmpty()){
             throw new ApplicationException("Cart is Empty");
         }
-        List<CartItem> cartItems = cartItemService.fetchCartItems(orderRequest.getCartItemIds());
+        List<CartItem> cartItems = cartItemService.fetchCartItems(user.getCartItemsId());
         Order order = new Order();
         order.setUserId(orderRequest.getUserId());
         order.setPaymentMode(orderRequest.getPaymentMode());
         order.setPaymentId(orderRequest.getPaymentId());
         order.setCartItems(cartItems);
-        order.setOrderAmount(order.getOrderAmount());
-        order.setAddress(orderRequest.getAddress());
+        order.setOrderAmount(orderRequest.getOrderAmount());
+        order.setAddress(address);
         String id = orderRepository.save(order).getId();
 
         userService.updateOrder(user.getId(), id);
-        cartItemService.deleteCartItems(orderRequest.getCartItemIds());
+        cartItemService.deleteCartItems(user.getCartItemsId());
 
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.CREATED);
     }

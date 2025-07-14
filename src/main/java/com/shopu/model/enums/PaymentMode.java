@@ -1,6 +1,7 @@
 package com.shopu.model.enums;
 
 public enum PaymentMode {
-    ONLINE,
+    UPI,
+    CARD,
     COD,
 }

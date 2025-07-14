@@ -16,4 +16,6 @@ public interface AddressService {
     ApiResponse<Boolean> removeAddress(String userId, String addressId);
 
     ApiResponse<List<Address>> fetchAddress(String userId);
+
+    Address findById(String addressId);
 }

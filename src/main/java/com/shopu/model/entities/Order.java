@@ -23,7 +23,7 @@ public class Order {
     private PaymentMode paymentMode;
     private List<CartItem> cartItems;
     private double orderAmount;
-    private String address;
+    private Address address;
     private OrderStatus orderStatus = OrderStatus.CONFIRMED;
     private String paymentId;
     private LocalDateTime deliveredAt;

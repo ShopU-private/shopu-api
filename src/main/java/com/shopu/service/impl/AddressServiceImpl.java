@@ -76,4 +76,9 @@ public class AddressServiceImpl implements AddressService {
         addressRepository.delete(address);
         return new ApiResponse<>(true, HttpStatus.OK);
     }
+
+    @Override
+    public Address findById(String addressId) {
+        return addressRepository.findById(addressId).orElse(null);
+    }
 }
