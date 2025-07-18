@@ -40,7 +40,7 @@ public class OrderServiceImpl implements OrderService {
     private AddressService addressService;
 
     @Override
-    public ApiResponse<Order> createOrder(CreateOrderRequest orderRequest) {
+    public ApiResponse<Order> placeOrder(CreateOrderRequest orderRequest) {
         User user = userService.findById(orderRequest.getUserId());
         if(user == null){
             throw new ApplicationException("User not found");
@@ -69,12 +69,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ApiResponse<List<Order>> fetchOrder(String userId) {
+    public ApiResponse<Page<Order>> fetchOrder(String userId, int page, int size) {
         User user = userService.findById(userId);
         if(user == null){
             throw new ApplicationException("User not found");
         }
-        return new ApiResponse<>(orderRepository.findAllByUserId(userId), HttpStatus.OK);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return new ApiResponse<>(orderRepository.findAllByUserId(userId, pageable), HttpStatus.OK);
     }
 
     @Override

@@ -30,6 +30,12 @@ public class User implements UserDetails {
     @Id
     private String id;
 
+    private String name;
+
+    private String email;
+
+    private String whatsappNumber;
+
     @Indexed(unique = true)
     @NotBlank(message = "Phone Field is Empty")
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone number Invalid")

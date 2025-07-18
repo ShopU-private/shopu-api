@@ -31,6 +31,7 @@ public class CartItemServiceImpl implements CartItemService {
 
     @Override
     public ApiResponse<CartItem> addToCart(CartItemAddRequest addRequest) {
+        /// TODO Needs to modify make it clear
         User user = userService.findById(addRequest.getUserId());
         if(user == null){
             throw new ApplicationException("User not found");
@@ -90,6 +91,13 @@ public class CartItemServiceImpl implements CartItemService {
         }
         List<CartItem> cartItems = cartItemRepository.findAllById(ids);
         return new ApiResponse<>(cartItems, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<Boolean> clearCart(String userId) {
+        List<String> cartItems = userService.clearCart(userId);
+        cartItemRepository.deleteAllById(cartItems);
+       return new ApiResponse<>(true, HttpStatus.OK);
     }
 
     @Override

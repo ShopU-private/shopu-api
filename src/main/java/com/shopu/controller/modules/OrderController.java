@@ -10,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("api/v1/order")
 @CrossOrigin(origins = "*")
@@ -21,14 +19,14 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/placed")
-    public ResponseEntity<ApiResponse<Order>> createOrder(@RequestBody CreateOrderRequest orderRequest){
-        ApiResponse<Order> response = orderService.createOrder(orderRequest);
+    public ResponseEntity<ApiResponse<Order>> placeOrder(@RequestBody CreateOrderRequest orderRequest){
+        ApiResponse<Order> response = orderService.placeOrder(orderRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/fetch/{userId}")
-    public ResponseEntity<ApiResponse<List<Order>>> fetchOrder(@PathVariable String userId){
-        ApiResponse<List<Order>> response = orderService.fetchOrder(userId);
+    @GetMapping("/fetch/{userId}/{page}/{size}")
+    public ResponseEntity<ApiResponse<Page<Order>>> fetchOrder(@PathVariable String userId, @PathVariable int page, @PathVariable int size){
+        ApiResponse<Page<Order>> response = orderService.fetchOrder(userId, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

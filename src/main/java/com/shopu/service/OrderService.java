@@ -5,12 +5,10 @@ import com.shopu.model.dtos.requests.create.CreateOrderRequest;
 import com.shopu.model.entities.Order;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
-
 public interface OrderService {
-    ApiResponse<Order> createOrder(CreateOrderRequest orderRequest);
+    ApiResponse<Order> placeOrder(CreateOrderRequest orderRequest);
 
-    ApiResponse<List<Order>> fetchOrder(String userId);
+    ApiResponse<Page<Order>> fetchOrder(String userId, int page, int size);
 
     ApiResponse<Page<Order>> allOrders(int page, int size);
 

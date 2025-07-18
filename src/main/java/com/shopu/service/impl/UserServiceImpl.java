@@ -1,14 +1,14 @@
 package com.shopu.service.impl;
-
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
+import com.shopu.model.dtos.requests.create.UserCreateRequest;
+import com.shopu.model.dtos.requests.update.UpdateProfileRequest;
 import com.shopu.model.entities.User;
 import com.shopu.model.enums.Role;
 import com.shopu.repository.UserRepository;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,9 +20,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Override
     public ApiResponse<User> getUser(String phoneNumber) {
@@ -36,8 +33,46 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByPhoneNumber(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber);
+    public ApiResponse<User> registerUser(UserCreateRequest createRequest) {
+        User user = findByPhoneNumber(createRequest.getPhoneNumber());
+        if(user != null){
+            throw new ApplicationException("Phone number already exists");
+        }
+
+        User newUser = new User(createRequest.getPhoneNumber());
+        newUser.setName(createRequest.getName());
+        newUser.setEmail(createRequest.getEmail());
+        newUser.setWhatsappNumber(createRequest.getWhatsappNumber());
+        newUser.setRole(createRequest.getRole());
+        return new ApiResponse<>(userRepository.save(newUser), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ApiResponse<Boolean> updateMobileNumber(String id, String newMobileNumber) {
+        User user = Optional.ofNullable(findById(id)).orElseThrow(
+                () -> new ApplicationException("User not found"));
+
+        User fetchedUser = userRepository.findByPhoneNumber(newMobileNumber);
+        if(fetchedUser != null){
+            return new ApiResponse<>("Phone Number already registered", HttpStatus.BAD_REQUEST);
+        }else {
+            user.setPhoneNumber(newMobileNumber);
+            userRepository.save(user);
+            return new ApiResponse<>(true, HttpStatus.OK);
+        }
+    }
+
+    @Override
+    public ApiResponse<User> updateProfile(String id, UpdateProfileRequest updateRequest) {
+        User user = userRepository.findById(id).orElse(null);
+        if(user == null){
+            throw new ApplicationException("User not found");
+        }
+
+        user.setName(updateRequest.getName());
+        user.setEmail(updateRequest.getEmail());
+        user.setWhatsappNumber(updateRequest.getWhatsappNumber());
+        return new ApiResponse<>(userRepository.save(user), HttpStatus.OK);
     }
 
     @Override
@@ -53,7 +88,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ApiResponse<Boolean> updateCart(String userId, String cartItemId, boolean addItem) {
+    public boolean updateCart(String userId, String cartItemId, boolean addItem) {
         User user = userRepository.findById(userId).orElse(null);
 
         if(user == null) {
@@ -66,11 +101,23 @@ public class UserServiceImpl implements UserService {
             user.getCartItemsId().remove(cartItemId);
         }
         userRepository.save(user);
-        return new ApiResponse<>(true, HttpStatus.OK);
+        return true;
     }
 
     @Override
-    public ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress) {
+    public List<String> clearCart(String userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if(user == null) {
+            throw new ApplicationException("User not found");
+        }
+        List<String> cartItems = user.getCartItemsId();
+        user.getCartItemsId().clear();
+        userRepository.save(user);
+        return cartItems;
+    }
+
+    @Override
+    public boolean updateAddress(String userId, String addressId, boolean addAddress) {
         User user = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new ApplicationException("User not found");
@@ -81,11 +128,11 @@ public class UserServiceImpl implements UserService {
             user.getAddressIds().remove(addressId);
         }
         userRepository.save(user);
-        return new ApiResponse<>(true, HttpStatus.OK);
+        return true;
     }
 
     @Override
-    public ApiResponse<Boolean> updateOrder(String userId, String orderId) {
+    public boolean updateOrder(String userId, String orderId) {
         User user = userRepository.findById(userId).orElse(null);
         if(user == null){
             throw new ApplicationException("User not found");
@@ -93,27 +140,17 @@ public class UserServiceImpl implements UserService {
         user.getCartItemsId().clear();
         user.getOrderIds().add(orderId);
         userRepository.save(user);
-        return new ApiResponse<>(true, HttpStatus.OK);
-    }
-
-    @Override
-    public ApiResponse<Boolean> updateMobileNumber(String id, String newMobileNumber) {
-        User user = Optional.ofNullable(findById(id)).orElseThrow(
-                () -> new ApplicationException("User not found"));
-
-       User fetchedUser = userRepository.findByPhoneNumber(newMobileNumber);
-        if(fetchedUser != null){
-            return new ApiResponse<>("Phone Number already registered", HttpStatus.BAD_REQUEST);
-        }else {
-            user.setPhoneNumber(newMobileNumber);
-            userRepository.save(user);
-            return new ApiResponse<>(true, HttpStatus.OK);
-        }
+        return true;
     }
 
     @Override
     public List<User> getAllUser() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User findByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
     }
 
     @Override

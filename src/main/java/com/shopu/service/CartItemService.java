@@ -14,6 +14,8 @@ public interface CartItemService {
 
     ApiResponse<List<CartItem>> fetchCartItem(String userId);
 
+    ApiResponse<Boolean> clearCart(String userId);
+
     List<CartItem> fetchCartItems(List<String> cartItemIds);
 
     Boolean deleteCartItems(List<String> cartItemIds);

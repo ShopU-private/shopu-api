@@ -2,6 +2,8 @@ package com.shopu.service;
 
 
 import com.shopu.common.utils.ApiResponse;
+import com.shopu.model.dtos.requests.create.UserCreateRequest;
+import com.shopu.model.dtos.requests.update.UpdateProfileRequest;
 import com.shopu.model.entities.User;
 
 import java.util.List;
@@ -10,9 +12,15 @@ public interface UserService {
 
     ApiResponse<User> getUser(String phoneNumber);
 
-    User findByPhoneNumber(String phoneNumber);
+    ApiResponse<User> registerUser(UserCreateRequest createRequest);
 
     ApiResponse<User> fetchById(String id);
+
+    ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
+
+    ApiResponse<User> updateProfile(String id, UpdateProfileRequest updateRequest);
+
+    User findByPhoneNumber(String phoneNumber);
 
     User findById(String userId);
 
@@ -20,11 +28,11 @@ public interface UserService {
 
     void updateLastSignIn(String id);
 
-    ApiResponse<Boolean> updateCart(String userId, String cartItemId, boolean addItem);
+    boolean updateCart(String userId, String cartItemId, boolean addItem);
 
-    ApiResponse<Boolean> updateAddress(String userId, String addressId, boolean addAddress);
+    boolean updateAddress(String userId, String addressId, boolean addAddress);
 
-    ApiResponse<Boolean> updateOrder(String userId, String orderId);
+    boolean updateOrder(String userId, String orderId);
 
-    ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
+    List<String> clearCart(String userId);
 }

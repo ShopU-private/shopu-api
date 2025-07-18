@@ -12,7 +12,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("api/v1/cart-products")
+@RequestMapping("api/v1/cart-item")
 public class CartItemController {
 
     @Autowired
@@ -27,6 +27,12 @@ public class CartItemController {
     @DeleteMapping("/remove")
     public ResponseEntity<ApiResponse<Boolean>> removeFromCart(@RequestParam String userId, @RequestParam String cartItemId){
         ApiResponse<Boolean> response = cartItemService.removeFromCart(userId, cartItemId);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @DeleteMapping("/clear/{userId}")
+    public ResponseEntity<ApiResponse<Boolean>> clearCart(@PathVariable String userId){
+        ApiResponse<Boolean> response = cartItemService.clearCart(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
