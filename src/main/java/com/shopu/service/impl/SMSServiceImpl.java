@@ -47,9 +47,9 @@ public class SMSServiceImpl implements SMSService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("gdadvertising2020@gmail.com", "ShopU");
-            helper.setReplyTo("gdadvertising2020@gmail.com");
-            helper.setTo("ayushverma7463@gmail.com");
+            helper.setFrom("liveshopu@gmail.com", "ShopU");
+            helper.setReplyTo("liveshopu@gmail.com");
+            helper.setTo("liveshopu@gmail.com");
             helper.setSubject("Your Verification Code");
             helper.setText(plainTextBody, htmlBody); // both plain text and HTML
             mailSender.send(message);
@@ -59,7 +59,6 @@ public class SMSServiceImpl implements SMSService {
             return new ApiResponse<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
-
 
     @Override
     public SMS findById(String smsId) {
