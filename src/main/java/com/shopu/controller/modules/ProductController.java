@@ -3,6 +3,7 @@ package com.shopu.controller.modules;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
+import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.entities.Product;
 import com.shopu.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/add")
@@ -42,11 +42,12 @@ public class ProductController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/fetch/{category}")
-    public ResponseEntity<ApiResponse<List<Product>>> fetchAllProduct(@PathVariable String category){
-        ApiResponse<List<Product>> response = productService.fetchAllProduct(category);
+    @GetMapping("/fetch/{category}/{page}/{size}")
+    public ResponseEntity<ApiResponse<PagedResponse<Product>>> fetchProduct(@PathVariable String category, @PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<Product>> response = productService.fetchProduct(category, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<Product>>> searchProducts(@RequestParam String query){

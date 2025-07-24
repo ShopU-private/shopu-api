@@ -4,12 +4,17 @@ import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
+import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.entities.Product;
 import com.shopu.model.enums.Category;
 import com.shopu.repository.ProductRepository;
 import com.shopu.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -64,10 +69,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse<List<Product>> fetchAllProduct(String category) {
+    public ApiResponse<PagedResponse<Product>> fetchProduct(String category, int page, int size) {
         Category c = Category.valueOf(category.toUpperCase());
-        List<Product> products = productRepository.findAllByCategory(c);
-        return new ApiResponse<>(products, HttpStatus.OK);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Product> response = productRepository.findAllByCategory(c, pageable);
+        PagedResponse<Product> pagedResponse = new PagedResponse<>(
+                response.getContent(),
+                response.getNumber(),
+                response.getTotalPages(),
+                response.isLast(),
+                response.isFirst()
+        );
+        return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }
 
     @Override

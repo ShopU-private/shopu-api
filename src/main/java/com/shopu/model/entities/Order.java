@@ -1,6 +1,7 @@
 package com.shopu.model.entities;
 import com.shopu.model.enums.OrderStatus;
 import com.shopu.model.enums.PaymentMode;
+import com.shopu.model.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,13 +21,27 @@ public class Order {
     @Id
     private String id;
     private String userId;
-    private PaymentMode paymentMode;
-    private List<CartItem> cartItems;
-    private double orderAmount;
-    private Address address;
+    private String orderId;
     private OrderStatus orderStatus = OrderStatus.CONFIRMED;
+    private List<CartItem> cartItems;
+    // Amount Attributes
+    private double totalItemPrice;
+    private double totalItemPriceWithDiscount;
+    private int deliveryCharge;
+    private int handlingCharge;
+    private int smallCartCharge;
+    private double orderAmount;
+    // Payment Attributes
+    private PaymentMode paymentMode = PaymentMode.COD;
+    private double amountPaidOnline;
+    private double codAmountPending;
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
     private String paymentId;
+    // Delivery attributes
+    private Address address;
     private LocalDateTime deliveredAt;
+    private boolean refundInitiated = false;
+    private String deliveryNotes;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 }

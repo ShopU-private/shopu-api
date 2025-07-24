@@ -1,4 +1,4 @@
-package com.shopu.model.entities;
+package com.shopu.model.dtos.response;
 
 import com.shopu.model.dtos.requests.create.CompositionItem;
 import com.shopu.model.enums.Category;
@@ -8,27 +8,22 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class Product {
-    // Product Attributes
-    @Id
+@NoArgsConstructor
+public class ProductResponse {
+    // TODO Currently We do not use this DTO
     private String id;
-    @Indexed
     private String name;
     private String brand;
     private ProductType productType; // new
     private String manufacturerName;
-    @Indexed
+
     private Category category;
     private DosageForm dosageForm;
 
@@ -49,10 +44,9 @@ public class Product {
     private String safetyAdvice;
     private String safetyInformation;
 
-    private String storageInfo;
+    private String storageInfo;        // e.g., "Store in cool dry place"
     private String disclaimer;
 
-    private String hsnCode;
     private String manufacturerDetails;
     private String countryOfOrigin;
 
@@ -66,6 +60,4 @@ public class Product {
 
     private List<String> images;
     private int stock;
-    private LocalDateTime createdAt = LocalDateTime.now();
-    private LocalDateTime updatedAt;
 }

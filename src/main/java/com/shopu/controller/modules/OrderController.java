@@ -2,13 +2,14 @@ package com.shopu.controller.modules;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
+import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.entities.Order;
 import com.shopu.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("api/v1/order")
@@ -25,15 +26,15 @@ public class OrderController {
     }
 
     @GetMapping("/fetch/{userId}/{page}/{size}")
-    public ResponseEntity<ApiResponse<Page<Order>>> fetchOrder(@PathVariable String userId, @PathVariable int page, @PathVariable int size){
-        ApiResponse<Page<Order>> response = orderService.fetchOrder(userId, page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<Order>>> fetchOrder(@PathVariable String userId, @PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<Order>> response = orderService.fetchOrder(userId, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/{page}/{size}")
-    public ResponseEntity<ApiResponse<Page<Order>>> allOrders(@PathVariable int page, @PathVariable int size){
-        ApiResponse<Page<Order>> response = orderService.allOrders(page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<Order>>> allOrders(@PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<Order>> response = orderService.allOrders(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

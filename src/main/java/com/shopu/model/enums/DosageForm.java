@@ -12,5 +12,6 @@ public enum DosageForm {
     POWDER,
     SPRAY,
     LIQUID,
-    STANDARD
+    STANDARD,
+    OTHER, // new
 }
