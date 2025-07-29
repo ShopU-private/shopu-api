@@ -14,13 +14,15 @@ public class CreateOrderRequest {
     @NotNull(message = "User Id required")
     private String userId;
     private PaymentMode paymentMode;
+    private int couponDiscountAmount;
+    private String couponCode;
     @NotNull(message = "OrderAmount required")
-    private double totalItemPrice;
-    private double totalItemPriceWithDiscount;
+    private float totalItemPrice;
+    private float totalItemPriceWithDiscount;
     private int deliveryCharge;
     private int handlingCharge;
     private int smallCartCharge;
-    private double orderAmount;
+    private float orderAmount;
     @NotNull(message = "Payment Id required")
     private String paymentId;
     @NotNull(message = "Address Id required")

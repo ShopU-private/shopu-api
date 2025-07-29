@@ -24,17 +24,20 @@ public class Order {
     private String orderId;
     private OrderStatus orderStatus = OrderStatus.CONFIRMED;
     private List<CartItem> cartItems;
+    // Coupon Attributes
+    private int couponDiscountAmount;
+    private String couponCode;
     // Amount Attributes
-    private double totalItemPrice;
-    private double totalItemPriceWithDiscount;
+    private float totalItemPrice;
+    private float totalItemPriceWithDiscount;
     private int deliveryCharge;
     private int handlingCharge;
     private int smallCartCharge;
     private double orderAmount;
     // Payment Attributes
     private PaymentMode paymentMode = PaymentMode.COD;
-    private double amountPaidOnline;
-    private double codAmountPending;
+    private float amountPaidOnline;
+    private float codAmountPending;
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
     private String paymentId;
     // Delivery attributes

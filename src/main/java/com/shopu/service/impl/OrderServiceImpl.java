@@ -42,6 +42,9 @@ public class OrderServiceImpl implements OrderService {
     private AddressService addressService;
 
     @Autowired
+    private CouponService couponService;
+
+    @Autowired
     private RazorpayService razorpayService;
 
     @Override
@@ -64,8 +67,8 @@ public class OrderServiceImpl implements OrderService {
         String id = orderRepository.save(order).getId();
 
         userService.updateOrder(user.getId(), id);
+        couponService.useCoupon(orderRequest.getUserId(), orderRequest.getCouponCode());
         cartItemService.deleteCartItems(user.getCartItemsId());
-
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.CREATED);
     }
 
@@ -84,10 +87,10 @@ public class OrderServiceImpl implements OrderService {
                 }
             }
 
-            double paidAmount = ((int) paymentDetails.getOrDefault("amount", 0)) / 100.0;
-            double orderAmount = orderRequest.getOrderAmount();
+            float paidAmount = ((int) paymentDetails.getOrDefault("amount", 0)) / 100f;
+            float orderAmount = orderRequest.getOrderAmount();
 
-            double codPending = Math.max(orderAmount - paidAmount, 0);
+            float codPending = Math.max(orderAmount - paidAmount, 0);
             PaymentStatus paymentStatus = paidAmount == orderAmount
                     ? PaymentStatus.PAID
                     : (paidAmount > 0 ? PaymentStatus.PARTIAL_PAID : PaymentStatus.UNPAID);
@@ -100,6 +103,8 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setUserId(orderRequest.getUserId());
         order.setOrderId(generateOrderId());
+        order.setCouponDiscountAmount(orderRequest.getCouponDiscountAmount());
+        order.setCouponCode(orderRequest.getCouponCode());
         order.setPaymentMode(orderRequest.getPaymentMode());
         order.setTotalItemPrice(orderRequest.getTotalItemPrice());
         order.setTotalItemPriceWithDiscount(orderRequest.getTotalItemPriceWithDiscount());
