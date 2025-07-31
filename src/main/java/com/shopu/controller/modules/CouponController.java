@@ -34,14 +34,15 @@ public class CouponController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-//    @PreAuthorize("hasAnyAuthority('ADMIN')")
-//    @PutMapping("/update")
-//    public ResponseEntity<ApiResponse<Coupon>> updateCoupon(){
-//    }
-
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<Coupon>>> fetchAllCoupons(){
         ApiResponse<List<Coupon>> response = couponService.fetchAllCoupons();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/fetch-available/coupons")
+    public ResponseEntity<ApiResponse<List<Coupon>>> fetchAvailableCoupons(@RequestParam String userId){
+        ApiResponse<List<Coupon>> response = couponService.fetchAvailableCoupons(userId);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

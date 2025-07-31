@@ -13,8 +13,13 @@ import com.shopu.repository.UserCouponUsageRepository;
 import com.shopu.service.CouponService;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.bson.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +34,8 @@ public class CouponServiceImpl implements CouponService {
     private CouponRepository couponRepository;
     @Autowired
     private UserCouponUsageRepository usageRepository;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Override
     public ApiResponse<Coupon> createCoupon(CouponCreateRequest createRequest) {
@@ -97,7 +104,54 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public ApiResponse<List<Coupon>> fetchAllCoupons() {
-        return new ApiResponse<>(couponRepository.findAllByActiveTrueOrderByCreatedAtDesc(), HttpStatus.OK);
+        List<Coupon> validCoupons = couponRepository
+                .findAllByActiveTrueAndEndDateAfterOrderByCreatedAtDesc(LocalDateTime.now());
+
+        return new ApiResponse<>(validCoupons, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<List<Coupon>> fetchAvailableCoupons(String userId) {
+        MatchOperation matchActiveAndNotExpired = Aggregation.match(
+                Criteria.where("active").is(true)
+                        .and("endDate").gt(LocalDateTime.now())
+        );
+
+        LookupOperation lookupUsage = LookupOperation.newLookup()
+                .from("userCouponUsage")
+                .localField("code")
+                .foreignField("couponCode")
+                .as("usages");
+
+        // Custom $addFields stage to set `usedByUser` = true if matching userId found
+        Document addUsedByUserField = new Document("$addFields",
+                new Document("usedByUser",
+                        new Document("$gt", List.of(
+                                new Document("$size", new Document("$filter", new Document()
+                                        .append("input", "$usages")
+                                        .append("as", "usage")
+                                        .append("cond", new Document("$eq", List.of("$$usage.userId", userId)))
+                                )),
+                                0
+                        ))
+                )
+        );
+
+        AggregationOperation addFieldsStage = context -> addUsedByUserField;
+
+        MatchOperation excludeUsedCoupons = Aggregation.match(Criteria.where("usedByUser").is(false));
+
+        SortOperation sortByCreatedAt = Aggregation.sort(Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                matchActiveAndNotExpired,
+                lookupUsage,
+                addFieldsStage,
+                excludeUsedCoupons,
+                sortByCreatedAt
+        );
+        AggregationResults<Coupon> result = mongoTemplate.aggregate(aggregation, "coupon", Coupon.class);
+        return new ApiResponse<>(result.getMappedResults(), HttpStatus.OK);
     }
 
     @Override

@@ -67,7 +67,9 @@ public class OrderServiceImpl implements OrderService {
         String id = orderRepository.save(order).getId();
 
         userService.updateOrder(user.getId(), id);
-        couponService.useCoupon(orderRequest.getUserId(), orderRequest.getCouponCode());
+        if(orderRequest.getCouponCode() != null){
+            couponService.useCoupon(orderRequest.getUserId(), orderRequest.getCouponCode());
+        }
         cartItemService.deleteCartItems(user.getCartItemsId());
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.CREATED);
     }

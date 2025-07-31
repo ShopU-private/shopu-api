@@ -17,4 +17,6 @@ public interface CouponService {
     boolean useCoupon(String userId, String couponCode);
 
     ApiResponse<List<Coupon>> fetchAllCoupons();
+
+    ApiResponse<List<Coupon>> fetchAvailableCoupons(String userId);
 }
