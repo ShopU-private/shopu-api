@@ -28,7 +28,7 @@ public class CouponController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/apply")
+    @PostMapping("/apply")
     public ResponseEntity<ApiResponse<CouponResponse>> applyCoupon(@RequestBody ApplyCouponRequest request){
         ApiResponse<CouponResponse> response = couponService.applyCoupon(request);
         return ResponseEntity.status(response.getStatus()).body(response);
