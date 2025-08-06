@@ -19,4 +19,6 @@ public class AddressUpdateRequest {
     private String city;
     private String state;
     private String pinCode;
+    private String latitude;
+    private String longitude;
 }

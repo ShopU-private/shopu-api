@@ -31,7 +31,8 @@ public class Address {
     private String pinCode;
 
     private boolean isDefault;
-
+    private String latitude;
+    private String longitude;
     @CreatedDate
     private LocalDateTime createdAt;
 
