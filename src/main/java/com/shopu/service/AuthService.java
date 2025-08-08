@@ -10,6 +10,5 @@ public interface AuthService {
     ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest);
 
     ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
-    
 
 }

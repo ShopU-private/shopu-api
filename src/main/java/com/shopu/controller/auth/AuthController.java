@@ -13,7 +13,6 @@ import java.util.Map;
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
-
     @Autowired
     private AuthService authService;
 
@@ -24,8 +23,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ApiResponse<AuthResponse> refreshToken(@RequestBody Map<String, String> request) {
-        return authService.refreshToken(request);
+    public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@RequestBody Map<String, String> request) {
+        ApiResponse<AuthResponse> response = authService.refreshToken(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
-
 }

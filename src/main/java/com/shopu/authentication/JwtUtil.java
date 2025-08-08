@@ -32,7 +32,7 @@ public class JwtUtil {
     // Generate Token
     public String generateAccessToken(String userId, Role role) {
 
-        long ACCESS_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000;
+        long ACCESS_TOKEN_EXPIRATION_TIME = 90L * 24 * 60 * 60 * 1000;
         return Jwts.builder()
                 .setSubject(userId)
                 .claim("role", role.name())
@@ -53,9 +53,6 @@ public class JwtUtil {
 
     // Refresh Access Token
     public String refreshAccessToken(String token) {
-        if (!validateAccessToken(token)) {
-            throw new ApplicationException("Invalid Token");
-        }
         String userId = extractUserId(token);
         Role role = extractRole(token);
         return generateAccessToken(userId, role);
