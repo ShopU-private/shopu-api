@@ -4,6 +4,8 @@ package com.shopu.service;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.UserCreateRequest;
 import com.shopu.model.dtos.requests.update.UpdateProfileRequest;
+import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.UserListResponse;
 import com.shopu.model.entities.User;
 
 import java.util.List;
@@ -19,6 +21,8 @@ public interface UserService {
     ApiResponse<Boolean> updateMobileNumber(String id, String mobNo);
 
     ApiResponse<User> updateProfile(String id, UpdateProfileRequest updateRequest);
+
+    ApiResponse<PagedResponse<UserListResponse>> getAllUsers(int page, int size);
 
     User findByPhoneNumber(String phoneNumber);
 

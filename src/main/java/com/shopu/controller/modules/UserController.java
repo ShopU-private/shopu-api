@@ -3,6 +3,8 @@ package com.shopu.controller.modules;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.UserCreateRequest;
 import com.shopu.model.dtos.requests.update.UpdateProfileRequest;
+import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.UserListResponse;
 import com.shopu.model.entities.User;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,13 @@ public class UserController {
     @GetMapping("/fetch")
     public ApiResponse<List<User>> getAllUser(){
         return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
+    }
+
+    //@PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/all/{page}/{size}")
+    public ResponseEntity<ApiResponse<PagedResponse<UserListResponse>>> getAllUsers(@PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<UserListResponse>> response = userService.getAllUsers(page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
 }

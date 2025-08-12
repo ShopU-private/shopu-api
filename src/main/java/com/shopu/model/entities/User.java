@@ -42,7 +42,6 @@ public class User implements UserDetails {
     private String phoneNumber;
 
     @NotNull(message = "Role is required")
-    @Field(name = "user_role")
     private Role role;
 
     private List<String> orderIds;

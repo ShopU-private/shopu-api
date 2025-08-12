@@ -10,7 +10,6 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class PagedResponse<T> {
-    // TODO create DTO for every Entity
     private List<T> content;
     private int pageNumber;
     private int totalPages;

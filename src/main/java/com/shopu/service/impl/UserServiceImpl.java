@@ -3,11 +3,17 @@ import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.UserCreateRequest;
 import com.shopu.model.dtos.requests.update.UpdateProfileRequest;
+import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.UserListResponse;
 import com.shopu.model.entities.User;
 import com.shopu.model.enums.Role;
 import com.shopu.repository.UserRepository;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Override
     public ApiResponse<User> getUser(String phoneNumber) {
@@ -80,6 +89,40 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new ApplicationException("User not found"));
         return new ApiResponse<>(user, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<PagedResponse<UserListResponse>> getAllUsers(int page, int size) {
+        int skip = page * size;
+
+        // Build aggregation pipeline
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip(skip),
+                Aggregation.limit(size),
+                Aggregation.project("id", "phoneNumber", "name", "email", "role", "createdAt", "lastSignedAt")
+        );
+
+        // Execute pipeline
+        List<UserListResponse> users = mongoTemplate.aggregate(
+                aggregation,
+                "users", // Mongo collection name
+                UserListResponse.class
+        ).getMappedResults();
+
+        // Get total count
+        long total = mongoTemplate.count(new Query(), User.class);
+        int totalPages = (int) Math.ceil((double) total / size);
+
+        // Wrap in paged response
+        PagedResponse<UserListResponse> pagedResponse = new PagedResponse<>(
+                users,
+                page,
+                totalPages,
+                page == 0,
+                page >= totalPages - 1
+        );
+        return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }
 
     @Override

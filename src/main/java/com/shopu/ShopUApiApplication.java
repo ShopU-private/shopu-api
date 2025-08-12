@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
+@PropertySource("classpath:AppSecrets.properties")
 public class ShopUApiApplication {
 
 	public static void main(String[] args) {
