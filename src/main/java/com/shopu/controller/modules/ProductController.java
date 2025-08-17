@@ -4,6 +4,7 @@ import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.ProductListResponse;
 import com.shopu.model.entities.Product;
 import com.shopu.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,16 +43,23 @@ public class ProductController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/all/{page}/{size}")
+    public ResponseEntity<ApiResponse<PagedResponse<ProductListResponse>>> fetchAllProducts(@PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<ProductListResponse>> response = productService.fetchAllProducts(page, size);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @GetMapping("/fetch/{category}/{page}/{size}")
     public ResponseEntity<ApiResponse<PagedResponse<Product>>> fetchProduct(@PathVariable String category, @PathVariable int page, @PathVariable int size){
         ApiResponse<PagedResponse<Product>> response = productService.fetchProduct(category, page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<Product>>> searchProducts(@RequestParam String query){
         ApiResponse<List<Product>> response = productService.searchProducts(query);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
+
 }

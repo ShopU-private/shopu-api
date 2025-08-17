@@ -21,9 +21,6 @@ public class UserCreateRequest {
 
     private String whatsappNumber;
 
-    @NotNull(message = "Address is required")
-    private Address address;
-
     @NotNull(message = "Role is required")
     private Role role;
 }

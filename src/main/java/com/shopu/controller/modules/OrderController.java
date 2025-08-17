@@ -2,6 +2,7 @@ package com.shopu.controller.modules;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
+import com.shopu.model.dtos.response.OrderListResponse;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.entities.Order;
 import com.shopu.service.OrderService;
@@ -33,8 +34,8 @@ public class OrderController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/{page}/{size}")
-    public ResponseEntity<ApiResponse<PagedResponse<Order>>> allOrders(@PathVariable int page, @PathVariable int size){
-        ApiResponse<PagedResponse<Order>> response = orderService.allOrders(page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<OrderListResponse>>> allOrders(@PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<OrderListResponse>> response = orderService.allOrders(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

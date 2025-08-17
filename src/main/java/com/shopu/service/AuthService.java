@@ -11,4 +11,7 @@ public interface AuthService {
 
     ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
 
+    ApiResponse<String> sendOtp(String phoneNumber);
+
+    ApiResponse<String> resendOtp(String smsId, String phoneNumber);
 }

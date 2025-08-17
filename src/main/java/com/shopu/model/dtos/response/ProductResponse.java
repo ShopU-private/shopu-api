@@ -3,7 +3,6 @@ package com.shopu.model.dtos.response;
 import com.shopu.model.dtos.requests.create.CompositionItem;
 import com.shopu.model.enums.Category;
 import com.shopu.model.enums.DosageForm;
-import com.shopu.model.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,6 @@ public class ProductResponse {
     private String id;
     private String name;
     private String brand;
-    private ProductType productType; // new
     private String manufacturerName;
 
     private Category category;

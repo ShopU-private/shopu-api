@@ -3,7 +3,6 @@ package com.shopu.model.entities;
 import com.shopu.model.dtos.requests.create.CompositionItem;
 import com.shopu.model.enums.Category;
 import com.shopu.model.enums.DosageForm;
-import com.shopu.model.enums.ProductType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +25,6 @@ public class Product {
     @Indexed
     private String name;
     private String brand;
-    private ProductType productType; // new
     private String manufacturerName;
     @Indexed
     private Category category;

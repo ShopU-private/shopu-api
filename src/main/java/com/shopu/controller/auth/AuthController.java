@@ -22,6 +22,18 @@ public class AuthController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PostMapping("/send-otp")
+    public ResponseEntity<ApiResponse<String>> sendOtp(@RequestParam String phoneNumber) {
+        ApiResponse<String> response = authService.sendOtp(phoneNumber);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PutMapping("/resend-otp")
+    public ResponseEntity<ApiResponse<String>> resendExistingOtp(@RequestParam String smsId, @RequestParam String phoneNumber){
+        ApiResponse<String> response = authService.resendOtp(smsId, phoneNumber);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@RequestBody Map<String, String> request) {
         ApiResponse<AuthResponse> response = authService.refreshToken(request);

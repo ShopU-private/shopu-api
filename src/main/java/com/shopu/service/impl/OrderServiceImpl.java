@@ -3,11 +3,9 @@ package com.shopu.service.impl;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
+import com.shopu.model.dtos.response.OrderListResponse;
 import com.shopu.model.dtos.response.PagedResponse;
-import com.shopu.model.entities.Address;
-import com.shopu.model.entities.CartItem;
-import com.shopu.model.entities.Order;
-import com.shopu.model.entities.User;
+import com.shopu.model.entities.*;
 import com.shopu.model.enums.OrderStatus;
 import com.shopu.model.enums.PaymentMode;
 import com.shopu.model.enums.PaymentStatus;
@@ -18,6 +16,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +47,9 @@ public class OrderServiceImpl implements OrderService {
     private CouponService couponService;
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private RazorpayService razorpayService;
 
     @Override
@@ -70,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
         if(orderRequest.getCouponCode() != null){
             couponService.useCoupon(orderRequest.getUserId(), orderRequest.getCouponCode());
         }
+        // TODO update stock of product from cartItemServiceImpl layer by this API
         cartItemService.deleteCartItems(user.getCartItemsId());
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.CREATED);
     }
@@ -134,11 +140,37 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ApiResponse<PagedResponse<Order>> allOrders(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Order> response = orderRepository.findAll(pageable);
-        return new ApiResponse<>(new PagedResponse<>(response.getContent(), response.getNumber(),
-                response.getTotalPages(), response.isLast(), response.isFirst()), HttpStatus.OK);
+    public ApiResponse<PagedResponse<OrderListResponse>> allOrders(int page, int size) {
+        int skip = page * size;
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip(skip),
+                Aggregation.limit(size),
+                Aggregation.project("id", "orderId", "orderAmount", "createdAt")
+                        .and("orderStatus").as("status")
+                        .and("address.personName").as("receiverName")
+                        .and(ArrayOperators.Size.lengthOfArray("cartItems")).as("totalItem")
+        );
+
+        long total = mongoTemplate.count(new Query(), Product.class);
+        int totalPages = (int) Math.ceil((double) total / size);
+
+        List<OrderListResponse> orders = mongoTemplate.aggregate(
+                aggregation,
+                "orders",
+                OrderListResponse.class
+        ).getMappedResults();
+
+        PagedResponse<OrderListResponse> pagedResponse = new PagedResponse<>(
+                orders,
+                page,
+                totalPages,
+                page >= totalPages - 1,
+                page == 0
+        );
+
+        return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }
 
     @Override
@@ -150,7 +182,6 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdatedAt(LocalDateTime.now());
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.OK);
     }
-
 
     private static String generateOrderId() {
         LocalDateTime now = LocalDateTime.now();

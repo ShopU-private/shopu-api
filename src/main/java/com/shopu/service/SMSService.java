@@ -3,11 +3,16 @@ package com.shopu.service;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.entities.SMS;
 
+import java.util.Map;
+
 public interface SMSService {
 
-    ApiResponse<String> sendOtp(String phoneNumber);
+    Map<String, String> createOtp(String phoneNumber);
+
+    void sendOtp(String otp);
 
     SMS findById(String smsId);
 
     void delete(String smsId);
+
 }

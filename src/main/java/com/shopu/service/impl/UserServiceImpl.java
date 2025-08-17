@@ -95,7 +95,6 @@ public class UserServiceImpl implements UserService {
     public ApiResponse<PagedResponse<UserListResponse>> getAllUsers(int page, int size) {
         int skip = page * size;
 
-        // Build aggregation pipeline
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.sort(Sort.Direction.DESC, "createdAt"),
                 Aggregation.skip(skip),
@@ -103,24 +102,21 @@ public class UserServiceImpl implements UserService {
                 Aggregation.project("id", "phoneNumber", "name", "email", "role", "createdAt", "lastSignedAt")
         );
 
-        // Execute pipeline
         List<UserListResponse> users = mongoTemplate.aggregate(
                 aggregation,
                 "users", // Mongo collection name
                 UserListResponse.class
         ).getMappedResults();
 
-        // Get total count
         long total = mongoTemplate.count(new Query(), User.class);
         int totalPages = (int) Math.ceil((double) total / size);
 
-        // Wrap in paged response
         PagedResponse<UserListResponse> pagedResponse = new PagedResponse<>(
                 users,
                 page,
                 totalPages,
-                page == 0,
-                page >= totalPages - 1
+                page >= totalPages - 1,
+                page == 0
         );
         return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }

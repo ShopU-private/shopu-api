@@ -37,6 +37,33 @@ public class AuthServiceImpl implements AuthService {
     private String ADMIN_OTP;
 
     @Override
+    public ApiResponse<String> sendOtp(String phoneNumber) {
+        Map<String, String> credentials = smsService.createOtp(phoneNumber);
+
+        // OTP sending Thread
+        smsService.sendOtp(credentials.get("otp"));
+
+        return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");
+    }
+
+    @Override
+    public ApiResponse<String> resendOtp(String smsId, String phoneNumber) {
+       SMS fetchedSMS = smsService.findById(smsId);
+       if(fetchedSMS == null){
+           return new ApiResponse<>("Wrong request try again!", HttpStatus.NOT_FOUND);
+       }else{
+           smsService.delete(smsId);
+       }
+
+        Map<String, String> credentials = smsService.createOtp(phoneNumber);
+
+        // OTP sending Thread
+        smsService.sendOtp(credentials.get("otp"));
+
+        return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");
+    }
+
+    @Override
     public ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest) {
 
         SMS sms = smsService.findById(loginRequest.getSmsId());

@@ -47,4 +47,6 @@ public class Order {
     private String deliveryNotes;
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
+    // User ID of those who update something in order
+    // private String updatedBy;
 }
