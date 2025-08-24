@@ -72,8 +72,7 @@ public class ProductServiceImpl implements ProductService {
         if (query.trim().isEmpty()) {
             return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
         }
-        List<Product> result = productRepository
-                .findByNameContainingIgnoreCase(query);
+        List<Product> result = productRepository.findByNameContainingIgnoreCase(query);
         return new ApiResponse<>(result, HttpStatus.OK);
     }
 

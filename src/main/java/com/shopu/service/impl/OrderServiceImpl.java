@@ -3,8 +3,9 @@ package com.shopu.service.impl;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
-import com.shopu.model.dtos.response.OrderListResponse;
 import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.order.OrderListResponseApp;
+import com.shopu.model.dtos.response.order.OrderListResponseWeb;
 import com.shopu.model.entities.*;
 import com.shopu.model.enums.OrderStatus;
 import com.shopu.model.enums.PaymentMode;
@@ -19,12 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -140,7 +145,99 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ApiResponse<PagedResponse<OrderListResponse>> allOrders(int page, int size) {
+    public ApiResponse<List<OrderListResponseApp>> searchOrders(String query) {
+        if (query.trim().isEmpty()) {
+            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+        }
+
+        MatchOperation matchStage = Aggregation.match(Criteria.where("orderId").regex(query, "i"));
+
+        ProjectionOperation projectStage = Aggregation.project("id", "orderId", "orderAmount",
+                        "amountPaidOnline", "codAmountPending", "paymentStatus",
+                        "orderStatus", "address", "createdAt")
+                .andExpression("size(cartItems)").as("totalItem");
+
+        Aggregation aggregation = Aggregation.newAggregation(matchStage, projectStage);
+
+        List<OrderListResponseApp> result = mongoTemplate.aggregate(aggregation, "orders", OrderListResponseApp.class).getMappedResults();
+
+        return new ApiResponse<>(result, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size) {
+        int skip = page * size;
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip(skip),
+                Aggregation.limit(size),
+                Aggregation.project("id", "orderId", "orderAmount", "amountPaidOnline",
+                                "codAmountPending", "paymentStatus", "orderStatus", "address", "createdAt")
+                        .and(ArrayOperators.Size.lengthOfArray("cartItems")).as("totalItem")
+        );
+
+        List<OrderListResponseApp> orders = mongoTemplate.aggregate(
+                aggregation,
+                "orders",
+                OrderListResponseApp.class
+        ).getMappedResults();
+
+        long total = mongoTemplate.count(new Query(), "orders");
+        int totalPages = (int) Math.ceil((double) total / size);
+
+        PagedResponse<OrderListResponseApp> pagedResponse = new PagedResponse<>(
+                orders,
+                page,
+                totalPages,
+                page >= totalPages - 1,
+                page == 0
+        );
+
+        return new ApiResponse<>(pagedResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<Boolean> updateOrderStatus(String status, String id) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new ApplicationException("Order not found"));
+        OrderStatus newStatus = OrderStatus.valueOf(status.toUpperCase());
+        OrderStatus currentStatus = order.getOrderStatus();
+
+        if (newStatus.ordinal() < currentStatus.ordinal()) {
+            throw new ApplicationException("Cannot move order status backwards");
+        }
+
+        if (newStatus.ordinal() - currentStatus.ordinal() > 1) {
+            throw new ApplicationException("Invalid status transition: must follow sequence");
+        }
+
+        order.setOrderStatus(newStatus);
+        order.setUpdatedAt(LocalDateTime.now());
+
+        orderRepository.save(order);
+        return new ApiResponse<>(true, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<Boolean> updatePaymentStatus(String id) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new ApplicationException("Order not found"));
+
+        if(PaymentStatus.PAID.ordinal() < order.getPaymentStatus().ordinal()){
+            throw new ApplicationException("Cannot move Payment status backwards");
+        }
+
+        order.setPaymentStatus(PaymentStatus.PAID);
+        order.setCodAmountPaid(order.getCodAmountPending());
+        order.setCodAmountPending(0);
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
+        return new ApiResponse<>(true, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<PagedResponse<OrderListResponseWeb>> fetchOrdersWeb(int page, int size) {
         int skip = page * size;
 
         Aggregation aggregation = Aggregation.newAggregation(
@@ -153,16 +250,16 @@ public class OrderServiceImpl implements OrderService {
                         .and(ArrayOperators.Size.lengthOfArray("cartItems")).as("totalItem")
         );
 
-        long total = mongoTemplate.count(new Query(), Product.class);
+        long total = mongoTemplate.count(new Query(), "orders");
         int totalPages = (int) Math.ceil((double) total / size);
 
-        List<OrderListResponse> orders = mongoTemplate.aggregate(
+        List<OrderListResponseWeb> orders = mongoTemplate.aggregate(
                 aggregation,
                 "orders",
-                OrderListResponse.class
+                OrderListResponseWeb.class
         ).getMappedResults();
 
-        PagedResponse<OrderListResponse> pagedResponse = new PagedResponse<>(
+        PagedResponse<OrderListResponseWeb> pagedResponse = new PagedResponse<>(
                 orders,
                 page,
                 totalPages,
@@ -171,16 +268,6 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return new ApiResponse<>(pagedResponse, HttpStatus.OK);
-    }
-
-    @Override
-    public ApiResponse<Order> updateOrderStatus(String status, String orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new ApplicationException("Order not found"));
-        OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
-        order.setOrderStatus(orderStatus);
-        order.setUpdatedAt(LocalDateTime.now());
-        return new ApiResponse<>(orderRepository.save(order), HttpStatus.OK);
     }
 
     private static String generateOrderId() {

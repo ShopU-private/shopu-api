@@ -41,6 +41,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, String> credentials = smsService.createOtp(phoneNumber);
 
         // OTP sending Thread
+        //smsService.sendSMS(credentials.get("otp"), phoneNumber); // Currently unused
         smsService.sendOtp(credentials.get("otp"));
 
         return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");
@@ -58,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String, String> credentials = smsService.createOtp(phoneNumber);
 
         // OTP sending Thread
+        //smsService.sendSMS(credentials.get("otp"), phoneNumber); // Currently unused
         smsService.sendOtp(credentials.get("otp"));
 
         return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");

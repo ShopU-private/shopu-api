@@ -11,6 +11,8 @@ public interface SMSService {
 
     void sendOtp(String otp);
 
+    void sendSMS(String otp, String phoneNumber);
+
     SMS findById(String smsId);
 
     void delete(String smsId);

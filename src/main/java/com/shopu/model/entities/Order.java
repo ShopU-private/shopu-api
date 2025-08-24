@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,9 @@ import java.util.List;
 public class Order {
     @Id
     private String id;
+    @Indexed
     private String userId;
+    @Indexed
     private String orderId;
     private OrderStatus orderStatus = OrderStatus.CONFIRMED;
     private List<CartItem> cartItems;
@@ -38,6 +41,7 @@ public class Order {
     private PaymentMode paymentMode = PaymentMode.COD;
     private float amountPaidOnline;
     private float codAmountPending;
+    private float codAmountPaid;
     private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
     private String paymentId;
     // Delivery attributes

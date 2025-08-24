@@ -1,4 +1,4 @@
-package com.shopu.model.dtos.response;
+package com.shopu.model.dtos.response.order;
 
 import com.shopu.model.enums.OrderStatus;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class OrderListResponse {
+public class OrderListResponseWeb {
     private String id;
     private String orderId;
     private String receiverName;

@@ -2,16 +2,25 @@ package com.shopu.service;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
-import com.shopu.model.dtos.response.OrderListResponse;
 import com.shopu.model.dtos.response.PagedResponse;
+import com.shopu.model.dtos.response.order.OrderListResponseApp;
+import com.shopu.model.dtos.response.order.OrderListResponseWeb;
 import com.shopu.model.entities.Order;
+
+import java.util.List;
 
 public interface OrderService {
     ApiResponse<Order> placeOrder(CreateOrderRequest orderRequest);
 
     ApiResponse<PagedResponse<Order>> fetchOrder(String userId, int page, int size);
 
-    ApiResponse<PagedResponse<OrderListResponse>> allOrders(int page, int size);
+    ApiResponse<PagedResponse<OrderListResponseWeb>> fetchOrdersWeb(int page, int size);
 
-    ApiResponse<Order> updateOrderStatus(String status, String orderId);
+    ApiResponse<Boolean> updateOrderStatus(String status, String id);
+
+    ApiResponse<Boolean> updatePaymentStatus(String id);
+
+    ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size);
+
+    ApiResponse<List<OrderListResponseApp>> searchOrders(String query);
 }
