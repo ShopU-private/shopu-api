@@ -18,7 +18,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
-        ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest);
+        ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest, false);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/admin-login")
+    public ResponseEntity<ApiResponse<AuthResponse>> adminLogin(@RequestBody LoginRequest loginRequest) {
+        ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest, true);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

@@ -208,8 +208,8 @@ public class OrderServiceImpl implements OrderService {
             throw new ApplicationException("Cannot move order status backwards");
         }
 
-        if (newStatus.ordinal() - currentStatus.ordinal() > 1) {
-            throw new ApplicationException("Invalid status transition: must follow sequence");
+        if(newStatus.ordinal() > OrderStatus.SHIPPED.ordinal() && order.getPaymentStatus().ordinal() < PaymentStatus.PAID.ordinal()){
+            throw new ApplicationException("Invalid attempt: Payment still pending");
         }
 
         order.setOrderStatus(newStatus);
@@ -224,8 +224,8 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id).orElseThrow(
                 () -> new ApplicationException("Order not found"));
 
-        if(PaymentStatus.PAID.ordinal() < order.getPaymentStatus().ordinal()){
-            throw new ApplicationException("Cannot move Payment status backwards");
+        if(PaymentStatus.PAID == order.getPaymentStatus()){
+            throw new ApplicationException("Order status already paid");
         }
 
         order.setPaymentStatus(PaymentStatus.PAID);

@@ -38,6 +38,7 @@ public class Order {
     private int smallCartCharge;
     private double orderAmount;
     // Payment Attributes
+    //private List<Payment> payments; //TODO use this for clean entity
     private PaymentMode paymentMode = PaymentMode.COD;
     private float amountPaidOnline;
     private float codAmountPending;

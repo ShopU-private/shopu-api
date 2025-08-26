@@ -41,9 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize ->
                 authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
-                        "/auth/login",
-                                "/auth/send-otp",
-                                "/auth/resend-otp",
+                        "/auth/**",
                                 "/swagger-ui/**"
                         )
                 .permitAll()

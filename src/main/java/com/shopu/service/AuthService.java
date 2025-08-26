@@ -7,7 +7,7 @@ import com.shopu.model.dtos.response.AuthResponse;
 import java.util.Map;
 
 public interface AuthService {
-    ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest);
+    ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest, boolean isAdminLogin);
 
     ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
 

@@ -1,6 +1,5 @@
 package com.shopu.authentication;
 
-import com.shopu.exception.ApplicationException;
 import com.shopu.model.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

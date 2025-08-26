@@ -7,6 +7,7 @@ import com.shopu.model.dtos.requests.create.LoginRequest;
 import com.shopu.model.dtos.response.AuthResponse;
 import com.shopu.model.entities.SMS;
 import com.shopu.model.entities.User;
+import com.shopu.model.enums.Role;
 import com.shopu.service.AuthService;
 import com.shopu.service.SMSService;
 import com.shopu.service.UserService;
@@ -66,26 +67,45 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest) {
+    public ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest, boolean isAdminLogin) {
 
         SMS sms = smsService.findById(loginRequest.getSmsId());
 
-        if (sms == null || !sms.getPhoneNumber().equals(loginRequest.getPhoneNumber())) {
-            throw new ApplicationException("Unauthorized access or invalid SMS ID");
+        if (sms == null) {
+            throw new ApplicationException("Invalid OTP");
+        }
+        if(!sms.getPhoneNumber().equals(loginRequest.getPhoneNumber())){
+            throw new ApplicationException("Invalid login credentials");
         }
 
         if (!passwordEncoder.matches(loginRequest.getOtp(), sms.getOtpHash()) && !Objects.equals(loginRequest.getOtp(), ADMIN_OTP)) {
             return new ApiResponse<>("Incorrect OTP", HttpStatus.BAD_GATEWAY);
         }
 
+        // Delete sms
         smsService.delete(sms.getId());
-        ApiResponse<User> response = userService.getUser(loginRequest.getPhoneNumber());
 
-        User user = response.getData();
+        User user;
+        int status;
+
+        // User access according user/admin login
+        if(isAdminLogin){
+            user = userService.findByPhoneNumber(loginRequest.getPhoneNumber());
+            if(user == null || user.getRole() != Role.ADMIN){
+                return new ApiResponse<>("User not found", HttpStatus.UNAUTHORIZED);
+            }
+            else{
+                status = 200;
+            }
+        }else{
+            ApiResponse<User> response = userService.getUser(loginRequest.getPhoneNumber());
+            user = response.getData();
+            status = response.getStatus();
+        }
 
         String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         userService.updateLastSignIn(user.getId());
-        return new ApiResponse<>(new AuthResponse(token), response.getStatus());
+        return new ApiResponse<>(new AuthResponse(token), status);
     }
 
     @Override
