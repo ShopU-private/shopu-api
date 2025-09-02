@@ -7,11 +7,17 @@ public enum DosageForm {
     INJECTION,
     OINTMENT,
     CREAM,
-    DROPS,
+    DROP,
     INHALER,
     POWDER,
     SPRAY,
     LIQUID,
     STANDARD,
     OTHER, // new
+    PESSARY,
+    SUSPENSION,
+    GEL,
+    KIT,
+
+
 }

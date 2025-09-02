@@ -6,7 +6,7 @@ import com.shopu.model.dtos.requests.create.AddressRequest;
 import com.shopu.model.dtos.requests.update.AddressUpdateRequest;
 import com.shopu.model.entities.Address;
 import com.shopu.model.entities.User;
-import com.shopu.repository.AddressRepository;
+import com.shopu.repository.common.AddressRepository;
 import com.shopu.service.AddressService;
 import com.shopu.service.UserService;
 import org.modelmapper.ModelMapper;

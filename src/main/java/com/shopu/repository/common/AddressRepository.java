@@ -1,4 +1,4 @@
-package com.shopu.repository;
+package com.shopu.repository.common;
 
 import com.shopu.model.entities.Address;
 import org.springframework.data.mongodb.repository.MongoRepository;

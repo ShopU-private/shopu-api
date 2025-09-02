@@ -5,7 +5,7 @@ import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.CartItemAddRequest;
 import com.shopu.model.entities.CartItem;
 import com.shopu.model.entities.User;
-import com.shopu.repository.CartItemRepository;
+import com.shopu.repository.common.CartItemRepository;
 import com.shopu.service.CartItemService;
 import com.shopu.service.ProductService;
 import com.shopu.service.UserService;

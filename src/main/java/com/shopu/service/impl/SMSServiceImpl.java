@@ -2,7 +2,7 @@ package com.shopu.service.impl;
 
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.entities.SMS;
-import com.shopu.repository.SMSRepository;
+import com.shopu.repository.common.SMSRepository;
 import com.shopu.service.SMSService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;

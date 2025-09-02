@@ -1,4 +1,4 @@
-package com.shopu.repository;
+package com.shopu.repository.common;
 
 import com.shopu.model.dtos.response.order.OrderListResponseApp;
 import com.shopu.model.entities.Order;

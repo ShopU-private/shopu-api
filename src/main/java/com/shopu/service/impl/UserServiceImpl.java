@@ -7,7 +7,7 @@ import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.UserListResponse;
 import com.shopu.model.entities.User;
 import com.shopu.model.enums.Role;
-import com.shopu.repository.UserRepository;
+import com.shopu.repository.common.UserRepository;
 import com.shopu.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;

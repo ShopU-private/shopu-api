@@ -1,4 +1,4 @@
-package com.shopu.repository;
+package com.shopu.repository.product;
 
 import com.shopu.model.entities.Product;
 import com.shopu.model.enums.Category;

@@ -10,7 +10,7 @@ import com.shopu.model.entities.*;
 import com.shopu.model.enums.OrderStatus;
 import com.shopu.model.enums.PaymentMode;
 import com.shopu.model.enums.PaymentStatus;
-import com.shopu.repository.OrderRepository;
+import com.shopu.repository.common.OrderRepository;
 import com.shopu.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
