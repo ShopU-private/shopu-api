@@ -23,5 +23,7 @@ public interface ProductService {
 
     ApiResponse<PagedResponse<ProductListResponse>> fetchAllProducts(int page, int size);
 
+    ApiResponse<Long> getNoOfAllProducts();
+
     Product findById(String id);
 }

@@ -198,4 +198,10 @@ public class UserServiceImpl implements UserService {
         user.setLastSignedAt(LocalDateTime.now());
         userRepository.save(user);
     }
+
+    @Override
+    public ApiResponse<Long> getNoOfAllUser() {
+        Long count = mongoTemplate.count(new Query(), User.class, "users");
+        return new ApiResponse<>(count, HttpStatus.OK);
+    }
 }

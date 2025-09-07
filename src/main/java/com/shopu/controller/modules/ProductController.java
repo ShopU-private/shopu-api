@@ -62,4 +62,10 @@ public class ProductController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/count")
+    public ResponseEntity<ApiResponse<Long>> getNoOfAllProducts(){
+        ApiResponse<Long> response = productService.getNoOfAllProducts();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

@@ -18,15 +18,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-import org.springframework.data.mongodb.core.aggregation.MatchOperation;
-import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import org.bson.Document;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -268,6 +266,46 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return new ApiResponse<>(pagedResponse, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<Long> getNoOfAllOrders() {
+        Long count = mongoTemplate.count(new Query(), Order.class, "orders");
+        return new ApiResponse<>(count, HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<Map<String, Long>> getSaleSummary() {
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.group()
+                        .sum(
+                                ConditionalOperators.when(Criteria.where("orderStatus").is("DELIVERED"))
+                                        .thenValueOf("$orderAmount").otherwise(0)
+                        ).as("totalSales")
+                        .sum(
+                                ConditionalOperators.when(Criteria.where("orderStatus").in("SHIPPED", "CONFIRMED"))
+                                        .thenValueOf("$orderAmount").otherwise(0)
+                        ).as("upcomingSales"),
+                Aggregation.project("totalSales", "upcomingSales")
+        );
+
+        AggregationResults<Document> results =
+                mongoTemplate.aggregate(aggregation, "orders", Document.class);
+
+        Document result = results.getUniqueMappedResult();
+        long totalSales;
+        long upcomingSales;
+
+        if (result == null) {
+            totalSales = 0L;
+            upcomingSales = 0L;
+        }else{
+            totalSales = result.get("totalSales", Number.class).longValue();
+            upcomingSales = result.get("upcomingSales", Number.class).longValue();
+        }
+
+        return new ApiResponse<>(Map.of("totalSales", totalSales, "upcomingSales", upcomingSales), HttpStatus.OK);
+
     }
 
     private static String generateOrderId() {

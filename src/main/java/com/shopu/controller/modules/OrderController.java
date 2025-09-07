@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -63,8 +64,21 @@ public class OrderController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-/// Web APIs
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/count")
+    public ResponseEntity<ApiResponse<Long>> getNoOfAllOrders(){
+        ApiResponse<Long> response = orderService.getNoOfAllOrders();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/sale/summary")
+    public ResponseEntity<ApiResponse<Map<String, Long>>> getSaleSummary (){
+        ApiResponse<Map<String, Long>> response = orderService.getSaleSummary();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+/// Web APIs
+///
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/web/{page}/{size}")
     public ResponseEntity<ApiResponse<PagedResponse<OrderListResponseWeb>>> fetchOrdersWeb(@PathVariable int page, @PathVariable int size){

@@ -53,11 +53,17 @@ public class UserController {
         return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
     }
 
-    //@PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/{page}/{size}")
     public ResponseEntity<ApiResponse<PagedResponse<UserListResponse>>> getAllUsers(@PathVariable int page, @PathVariable int size){
         ApiResponse<PagedResponse<UserListResponse>> response = userService.getAllUsers(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/count")
+    public ResponseEntity<ApiResponse<Long>> getNoOfAllUser(){
+        ApiResponse<Long> response = userService.getNoOfAllUser();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

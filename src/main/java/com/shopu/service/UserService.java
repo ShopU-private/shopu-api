@@ -39,4 +39,6 @@ public interface UserService {
     boolean updateOrder(String userId, String orderId);
 
     List<String> clearCart(String userId);
+
+    ApiResponse<Long> getNoOfAllUser();
 }

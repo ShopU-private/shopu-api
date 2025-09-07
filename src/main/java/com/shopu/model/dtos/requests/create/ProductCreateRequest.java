@@ -20,7 +20,7 @@ public class ProductCreateRequest {
     @NotNull(message = "Name cannot be null")
     private String name;
 
-    @NotNull(message = "Brand cannot be null")
+//  @NotNull(message = "Brand cannot be null")
     private String brand;
 
     @NotNull(message = "Manufacturer Name cannot be null")
@@ -32,8 +32,6 @@ public class ProductCreateRequest {
     @NotNull(message = "Dosage form cannot be null")
     private DosageForm dosageForm;
 
-//    private String strength;
-
     @NotNull(message = "Pack size cannot be null")
     private String packSize;
 
@@ -42,7 +40,7 @@ public class ProductCreateRequest {
     @NotNull(message = "stock cannot be null")
     private int stock;
 
-    @NotNull(message = "stock cannot be null")
+    @NotNull(message = "description cannot be null")
     private String description;
 
     @Digits(integer = 10, fraction = 6)
@@ -53,7 +51,7 @@ public class ProductCreateRequest {
     @DecimalMin(value = "0.0", message = "Amount should not be negative")
     private float discount;
 
-    @NotNull(message = "Images cannot be null")
+//  @NotNull(message = "Images cannot be null")
     private List<String> images;
 
     private List<CompositionItem> composition;

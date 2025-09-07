@@ -6,6 +6,7 @@ import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
+import com.shopu.model.entities.Order;
 import com.shopu.model.entities.Product;
 import com.shopu.model.enums.Category;
 import com.shopu.repository.product.ProductRepository;
@@ -21,6 +22,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -100,9 +102,10 @@ public class ProductServiceImpl implements ProductService {
                 Aggregation.sort(Sort.Direction.DESC, "createdAt"),
                 Aggregation.skip(skip),
                 Aggregation.limit(size),
-                Aggregation.project("id", "name", "description", "category", "stock", "createdAt")
+                Aggregation.project("id", "name", "description", "category", "createdAt")
                         .and(ArrayOperators.ArrayElemAt.arrayOf("images").elementAt(0)).as("image")
                         .and(ArithmeticOperators.Subtract.valueOf("price").subtract("discount")).as("price")
+                        .and(ConditionalOperators.ifNull("stock").then(0)).as("stock")
         );
         List<ProductListResponse> products = mongoTemplate.aggregate(
                 aggregation,
@@ -126,5 +129,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findById(String id) {
         return productRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public ApiResponse<Long> getNoOfAllProducts() {
+        Long count = mongoTemplate.count(new Query(), Product.class, "product");
+        return new ApiResponse<>(count, HttpStatus.OK);
     }
 }

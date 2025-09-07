@@ -8,6 +8,7 @@ import com.shopu.model.dtos.response.order.OrderListResponseWeb;
 import com.shopu.model.entities.Order;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
     ApiResponse<Order> placeOrder(CreateOrderRequest orderRequest);
@@ -23,4 +24,8 @@ public interface OrderService {
     ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size);
 
     ApiResponse<List<OrderListResponseApp>> searchOrders(String query);
+
+    ApiResponse<Long> getNoOfAllOrders();
+
+    ApiResponse<Map<String, Long>> getSaleSummary();
 }
