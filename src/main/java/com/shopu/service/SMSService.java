@@ -7,14 +7,16 @@ import java.util.Map;
 
 public interface SMSService {
 
-    Map<String, String> createOtp(String phoneNumber);
-
-    void sendOtp(String otp);
-
-    void sendSMS(String otp, String phoneNumber);
+    Map<String, String> createOtp(String email);
 
     SMS findById(String smsId);
 
     void delete(String smsId);
+
+    void sendMailOtp(String email, String otp);
+
+    String sendSmsOtp(String phoneNumber);
+
+    boolean verifySmsOtp(String sessionId, String otp);
 
 }

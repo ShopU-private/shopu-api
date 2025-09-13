@@ -7,11 +7,14 @@ import com.shopu.model.dtos.response.AuthResponse;
 import java.util.Map;
 
 public interface AuthService {
-    ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest, boolean isAdminLogin);
-
-    ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
 
     ApiResponse<String> sendOtp(String phoneNumber);
 
-    ApiResponse<String> resendOtp(String smsId, String phoneNumber);
+    ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest, boolean isAdminLogin);
+
+    ApiResponse<String> sendAdminOtp(String phoneNumber);
+
+    ApiResponse<AuthResponse> verifiedAdminLogin(LoginRequest loginRequest);
+
+    ApiResponse<AuthResponse> refreshToken(Map<String, String> request);
 }

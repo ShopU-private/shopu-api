@@ -64,6 +64,7 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         // CORS origins confirmation
         config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
                 "https://shopu-admin-web.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

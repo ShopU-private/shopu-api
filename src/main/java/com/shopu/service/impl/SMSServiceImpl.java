@@ -1,5 +1,9 @@
 package com.shopu.service.impl;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.entities.SMS;
 import com.shopu.repository.common.SMSRepository;
@@ -8,11 +12,16 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -36,13 +45,10 @@ public class SMSServiceImpl implements SMSService {
     @Autowired
     private JavaMailSender mailSender;
 
-    @Value("${fast2sms.api.key}")
+    @Value("${2factor.api.key}")
     private String apiKey;
 
-    @Override
-    public SMS findById(String smsId) {
-        return smsRepository.findById(smsId).orElse(null);
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public Map<String, String> createOtp(String phoneNumber){
@@ -50,9 +56,14 @@ public class SMSServiceImpl implements SMSService {
         SMS sms = new SMS(phoneNumber, passwordEncoder.encode(otp)); // email is phoneNumber
         String sessionId = smsRepository.save(sms).getId();
         return Map.of(
-         "otp", otp,
-         "sessionId", sessionId
+                "otp", otp,
+                "sessionId", sessionId
         );
+    }
+
+    @Override
+    public SMS findById(String smsId) {
+        return smsRepository.findById(smsId).orElse(null);
     }
 
     @Override
@@ -63,7 +74,7 @@ public class SMSServiceImpl implements SMSService {
 
     @Override
     @Async("taskExecutor")
-    public void sendOtp(String otp){
+    public void sendMailOtp(String email, String otp){
         try{
             String htmlBody = getHtmlTemplate(otp);
             String plainTextBody = getPlainTextTemplate(otp);
@@ -73,7 +84,7 @@ public class SMSServiceImpl implements SMSService {
 
             helper.setFrom("liveshopu@gmail.com", "ShopU");
             helper.setReplyTo("liveshopu@gmail.com");
-            helper.setTo("liveshopu@gmail.com");
+            helper.setTo(email);
             helper.setSubject("Your Login OTP Code");
             helper.setText(plainTextBody, htmlBody); // both plain text and HTML
             mailSender.send(message);
@@ -83,42 +94,60 @@ public class SMSServiceImpl implements SMSService {
     }
 
     @Override
-    @Async("taskExecutor")
-    public void sendSMS(String otp, String phoneNumber) {
+    public String sendSmsOtp(String phoneNumber) {
         try {
-            String message = "Dear Customer, " + otp + " is your one time password (OTP) for phone verification.";
-
-            String data = "sender_id=TXTIND"
-                    + "&message=" + URLEncoder.encode(message, "UTF-8")
-                    + "&route=v3"
-                    + "&numbers=" + phoneNumber;
-
-            URL url = new URL("https://www.fast2sms.com/dev/bulkV2");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Authorization", apiKey);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(data.getBytes());
-            outputStream.flush();
-            outputStream.close();
-
-            // Read response
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                response.append(line);
+            String sendUrl ="https://2factor.in/API/V1/"+apiKey+"/SMS/"+phoneNumber+"/AUTOGEN";
+            ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+                    sendUrl,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<Map<String, String>>() {}
+            );
+            if(response.getBody() != null && "Success".equalsIgnoreCase((String)  response.getBody().get("Status"))){
+                /// Details containing Session ID of OTP
+                return (String) response.getBody().get("Details");
+            }else{
+                throw new ApplicationException("Failed to send OTP");
             }
-            br.close();
-
-            System.out.println("Fast2SMS Response: " + response);
-
-            connection.disconnect();
         } catch (Exception e) {
             throw new ApplicationException("SMS sending failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean verifySmsOtp(String sessionId, String otp) {
+        String verifyOtpUrl ="https://2factor.in/API/V1/"+apiKey+"/SMS/VERIFY/"+sessionId+"/"+otp;
+        try{
+            ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+                    verifyOtpUrl,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {
+                    }
+            );
+            if (response.getBody() != null && "Success".equalsIgnoreCase((String) response.getBody().get("Status"))) {
+                return true;
+            } else {
+                throw new ApplicationException("Something went wrong, Try again");
+            }
+        } catch (HttpClientErrorException e){
+            try{
+                String responseBody = e.getResponseBodyAsString();
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, String> map = mapper.readValue(responseBody, new TypeReference<>() {
+                });
+
+                String status = map.get("Status");
+                String details = map.get("Details");
+
+                if ("Error".equalsIgnoreCase(status) && "OTP Mismatch".equalsIgnoreCase(details)){
+                    return false;
+                }else {
+                    throw new ApplicationException(details);
+                }
+        } catch (JsonProcessingException jsonEx){
+                throw new ApplicationException("Something went wrong. Try again");
+            }
         }
     }
 }

@@ -39,41 +39,57 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ApiResponse<String> sendOtp(String phoneNumber) {
-        Map<String, String> credentials = smsService.createOtp(phoneNumber);
 
-        // OTP sending Thread
-        //smsService.sendSMS(credentials.get("otp"), phoneNumber); // Currently unused
-        smsService.sendOtp(credentials.get("otp"));
+        String sessionId = smsService.sendSmsOtp(phoneNumber);
 
-        return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");
-    }
-
-    @Override
-    public ApiResponse<String> resendOtp(String smsId, String phoneNumber) {
-       SMS fetchedSMS = smsService.findById(smsId);
-       if(fetchedSMS == null){
-           return new ApiResponse<>("Wrong request try again!", HttpStatus.NOT_FOUND);
-       }else{
-           smsService.delete(smsId);
-       }
-
-        Map<String, String> credentials = smsService.createOtp(phoneNumber);
-
-        // OTP sending Thread
-        //smsService.sendSMS(credentials.get("otp"), phoneNumber); // Currently unused
-        smsService.sendOtp(credentials.get("otp"));
-
-        return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP successfully Sent");
+        return new ApiResponse<>(sessionId, HttpStatus.OK, "OTP successfully Sent");
     }
 
     @Override
     public ApiResponse<AuthResponse> verifiedLogin(LoginRequest loginRequest, boolean isAdminLogin) {
 
+        if(!smsService.verifySmsOtp(loginRequest.getSmsId(),loginRequest.getOtp())){
+            return new ApiResponse<>("Invalid OTP", HttpStatus.BAD_REQUEST);
+        }
+
+        ApiResponse<User> res = userService.getUser(loginRequest.getPhoneNumber());
+
+        User user = res.getData();
+
+        String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
+        userService.updateLastSignIn(user.getId());
+
+        return new ApiResponse<>(new AuthResponse(token), res.getStatus());
+    }
+
+    @Override
+    public ApiResponse<String> sendAdminOtp(String phoneNumber) {
+        User user = userService.findByPhoneNumber(phoneNumber);
+
+        if (user == null){
+            return new ApiResponse<>("User not found", HttpStatus.NOT_FOUND);
+        }
+
+        if(user.getRole() != Role.ADMIN){
+            return new ApiResponse<>("User not found", HttpStatus.BAD_REQUEST);
+        }
+
+        Map<String, String> credentials = smsService.createOtp(phoneNumber);
+
+        /// OTP sending Thread
+        smsService.sendMailOtp(user.getEmail(), credentials.get("otp"));
+
+        return new ApiResponse<>(credentials.get("sessionId"), HttpStatus.OK, "OTP Sent to your registered email");
+    }
+
+    @Override
+    public ApiResponse<AuthResponse> verifiedAdminLogin(LoginRequest loginRequest) {
         SMS sms = smsService.findById(loginRequest.getSmsId());
 
         if (sms == null) {
             throw new ApplicationException("Invalid OTP");
         }
+
         if(!sms.getPhoneNumber().equals(loginRequest.getPhoneNumber())){
             throw new ApplicationException("Invalid login credentials");
         }
@@ -85,27 +101,11 @@ public class AuthServiceImpl implements AuthService {
         // Delete sms
         smsService.delete(sms.getId());
 
-        User user;
-        int status;
-
-        // User access according user/admin login
-        if(isAdminLogin){
-            user = userService.findByPhoneNumber(loginRequest.getPhoneNumber());
-            if(user == null || user.getRole() != Role.ADMIN){
-                return new ApiResponse<>("User not found", HttpStatus.UNAUTHORIZED);
-            }
-            else{
-                status = 200;
-            }
-        }else{
-            ApiResponse<User> response = userService.getUser(loginRequest.getPhoneNumber());
-            user = response.getData();
-            status = response.getStatus();
-        }
+        User user = userService.findByPhoneNumber(loginRequest.getPhoneNumber());
 
         String token = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         userService.updateLastSignIn(user.getId());
-        return new ApiResponse<>(new AuthResponse(token), status);
+        return new ApiResponse<>(new AuthResponse(token), HttpStatus.OK);
     }
 
     @Override

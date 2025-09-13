@@ -78,11 +78,18 @@ public class OrderController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 /// Web APIs
-///
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/web/{page}/{size}")
-    public ResponseEntity<ApiResponse<PagedResponse<OrderListResponseWeb>>> fetchOrdersWeb(@PathVariable int page, @PathVariable int size){
-        ApiResponse<PagedResponse<OrderListResponseWeb>> response = orderService.fetchOrdersWeb(page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<OrderListResponseWeb>>> fetchOrdersWeb(
+            @PathVariable int page, @PathVariable int size, @RequestParam(required = false, value = "status") String status){
+        ApiResponse<PagedResponse<OrderListResponseWeb>> response = orderService.fetchOrdersWeb(page, size, status);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @GetMapping("/search/{id}")
+    public ResponseEntity<ApiResponse<List<OrderListResponseWeb>>> searchOrdersWeb(@PathVariable String id){
+        ApiResponse<List<OrderListResponseWeb>> response = orderService.searchOrdersWeb(id);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

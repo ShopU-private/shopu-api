@@ -16,6 +16,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @PostMapping("/send-otp")
+    public ResponseEntity<ApiResponse<String>> sendOtp(@RequestParam String phoneNumber) {
+        ApiResponse<String> response = authService.sendOtp(phoneNumber);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody LoginRequest loginRequest) {
         ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest, false);
@@ -24,19 +30,13 @@ public class AuthController {
 
     @PostMapping("/admin-login")
     public ResponseEntity<ApiResponse<AuthResponse>> adminLogin(@RequestBody LoginRequest loginRequest) {
-        ApiResponse<AuthResponse> response = authService.verifiedLogin(loginRequest, true);
+        ApiResponse<AuthResponse> response = authService.verifiedAdminLogin(loginRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @PostMapping("/send-otp")
-    public ResponseEntity<ApiResponse<String>> sendOtp(@RequestParam String phoneNumber) {
-        ApiResponse<String> response = authService.sendOtp(phoneNumber);
-        return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    @PutMapping("/resend-otp")
-    public ResponseEntity<ApiResponse<String>> resendExistingOtp(@RequestParam String smsId, @RequestParam String phoneNumber){
-        ApiResponse<String> response = authService.resendOtp(smsId, phoneNumber);
+    @PostMapping("/admin/send-otp")
+    public ResponseEntity<ApiResponse<String>> sendAdminOtp(@RequestParam String phoneNumber){
+        ApiResponse<String> response = authService.sendAdminOtp(phoneNumber);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

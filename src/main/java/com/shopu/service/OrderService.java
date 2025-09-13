@@ -15,8 +15,6 @@ public interface OrderService {
 
     ApiResponse<PagedResponse<Order>> fetchOrder(String userId, int page, int size);
 
-    ApiResponse<PagedResponse<OrderListResponseWeb>> fetchOrdersWeb(int page, int size);
-
     ApiResponse<Boolean> updateOrderStatus(String status, String id);
 
     ApiResponse<Boolean> updatePaymentStatus(String id);
@@ -28,4 +26,8 @@ public interface OrderService {
     ApiResponse<Long> getNoOfAllOrders();
 
     ApiResponse<Map<String, Long>> getSaleSummary();
+
+    ApiResponse<PagedResponse<OrderListResponseWeb>> fetchOrdersWeb(int page, int size, String status);
+
+    ApiResponse<List<OrderListResponseWeb>> searchOrdersWeb(String id);
 }
