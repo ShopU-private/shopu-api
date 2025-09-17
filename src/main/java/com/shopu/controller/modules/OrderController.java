@@ -38,8 +38,9 @@ public class OrderController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/{page}/{size}")
-    public ResponseEntity<ApiResponse<PagedResponse<OrderListResponseApp>>> fetchOrdersApp(@PathVariable int page, @PathVariable int size){
-        ApiResponse<PagedResponse<OrderListResponseApp>> response = orderService.fetchOrdersApp(page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<OrderListResponseApp>>> fetchOrdersApp(
+            @PathVariable int page, @PathVariable int size, @RequestParam(required = false, value = "status") String status){
+        ApiResponse<PagedResponse<OrderListResponseApp>> response = orderService.fetchOrdersApp(page, size, status);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

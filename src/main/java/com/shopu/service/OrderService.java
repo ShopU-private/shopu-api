@@ -19,7 +19,7 @@ public interface OrderService {
 
     ApiResponse<Boolean> updatePaymentStatus(String id);
 
-    ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size);
+    ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size, String status);
 
     ApiResponse<List<OrderListResponseApp>> searchOrders(String query);
 

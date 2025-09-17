@@ -144,12 +144,16 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ApiResponse<List<OrderListResponseApp>> searchOrders(String query) {
-        if (query.trim().isEmpty()) {
+    public ApiResponse<List<OrderListResponseApp>> searchOrders(String id) {
+        if (id.trim().isEmpty()) {
             return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
         }
 
-        MatchOperation matchStage = Aggregation.match(Criteria.where("orderId").regex(query, "i"));
+        if(id.length() < 13 || id.length() > 22){
+            return new ApiResponse<>("Couldn't find, Invalid Order ID", HttpStatus.BAD_REQUEST);
+        }
+
+        MatchOperation matchStage = Aggregation.match(Criteria.where("orderId").regex(id, "i"));
 
         ProjectionOperation projectStage = Aggregation.project("id", "orderId", "orderAmount",
                         "amountPaidOnline", "codAmountPending", "paymentStatus",
@@ -164,26 +168,37 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size) {
+    public ApiResponse<PagedResponse<OrderListResponseApp>> fetchOrdersApp(int page, int size, String status) {
         int skip = page * size;
 
-        Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
-                Aggregation.skip(skip),
-                Aggregation.limit(size),
-                Aggregation.project("id", "orderId", "orderAmount", "amountPaidOnline",
+        List<AggregationOperation> operations = new ArrayList<>();
+
+        if(status != null && !status.isEmpty()){
+            operations.add(Aggregation.match(Criteria.where("orderStatus").is(status)));
+        }
+
+        operations.add(Aggregation.sort(Sort.Direction.DESC, "createdAt"));
+        operations.add(Aggregation.skip(skip));
+        operations.add(Aggregation.limit(size));
+        operations.add(Aggregation.project("id", "orderId", "orderAmount", "amountPaidOnline",
                                 "codAmountPending", "paymentStatus", "orderStatus", "address", "createdAt")
-                        .and(ArrayOperators.Size.lengthOfArray("cartItems")).as("totalItem")
-        );
+                        .and(ArrayOperators.Size.lengthOfArray("cartItems")).as("totalItem"));
+
+        Aggregation aggregation = Aggregation.newAggregation(operations);
+
+        Query countQuery = new Query();
+        if(status != null && !status.isEmpty()){
+            countQuery.addCriteria(Criteria.where("orderStatus").is(status));
+        }
+
+        long total = mongoTemplate.count(countQuery, "orders");
+        int totalPages = (int) Math.ceil((double) total / size);
 
         List<OrderListResponseApp> orders = mongoTemplate.aggregate(
                 aggregation,
                 "orders",
                 OrderListResponseApp.class
         ).getMappedResults();
-
-        long total = mongoTemplate.count(new Query(), "orders");
-        int totalPages = (int) Math.ceil((double) total / size);
 
         PagedResponse<OrderListResponseApp> pagedResponse = new PagedResponse<>(
                 orders,
@@ -284,6 +299,10 @@ public class OrderServiceImpl implements OrderService {
     public ApiResponse<List<OrderListResponseWeb>> searchOrdersWeb(String id) {
         if (id.trim().isEmpty()) {
             return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+        }
+
+        if(id.length() < 13 || id.length() > 22){
+            return new ApiResponse<>("Couldn't find, Invalid Order ID", HttpStatus.BAD_REQUEST);
         }
 
         MatchOperation matchStage = Aggregation.match(Criteria.where("orderId").regex(id, "i"));
