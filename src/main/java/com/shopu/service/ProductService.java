@@ -19,7 +19,7 @@ public interface ProductService {
 
     ApiResponse<Boolean> removeProduct(String id);
 
-    ApiResponse<List<Product>> searchProducts(String query);
+    ApiResponse<PagedResponse<Product>> searchProducts(int page, int size, String query);
 
     ApiResponse<PagedResponse<ProductListResponse>> fetchAllProducts(int page, int size);
 

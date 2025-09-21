@@ -6,14 +6,12 @@ import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
-import com.shopu.model.entities.Order;
 import com.shopu.model.entities.Product;
 import com.shopu.model.enums.Category;
 import com.shopu.repository.product.ProductRepository;
 import com.shopu.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +21,7 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -71,12 +70,46 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse<List<Product>> searchProducts(String query) {
+    public ApiResponse<PagedResponse<Product>> searchProducts(int page, int size, String query) {
         if (query.trim().isEmpty()) {
-            return new ApiResponse<>(Collections.emptyList(), HttpStatus.OK);
+            PagedResponse<Product> pagedResponse = new PagedResponse<>(
+                    Collections.emptyList(),
+                    page,
+                    0,
+                    true,
+                    true
+            );
+            return new ApiResponse<>(pagedResponse, HttpStatus.OK);
         }
-        List<Product> result = productRepository.findByNameContainingIgnoreCase(query);
-        return new ApiResponse<>(result, HttpStatus.OK);
+
+        int skip = page * size;
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("name").regex(query, "i")),
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip(skip),
+                Aggregation.limit(size)
+        );
+
+        List<Product> products = mongoTemplate.aggregate(
+                aggregation,
+                "product",
+                Product.class
+        ).getMappedResults();
+
+        Query countQuery = new Query(Criteria.where("name").regex(query, "i"));
+        long total = mongoTemplate.count(countQuery, Product.class);
+
+        int totalPages = (int) Math.ceil((double) total / size);
+
+        PagedResponse<Product> pagedResponse = new PagedResponse<>(
+                products,
+                page,
+                totalPages,
+                page >= totalPages - 1,
+                page == 0
+        );
+
+        return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }
 
     @Override
@@ -102,7 +135,7 @@ public class ProductServiceImpl implements ProductService {
                 Aggregation.sort(Sort.Direction.DESC, "createdAt"),
                 Aggregation.skip(skip),
                 Aggregation.limit(size),
-                Aggregation.project("id", "name", "description", "category", "createdAt")
+                Aggregation.project("_id", "name", "description", "category", "createdAt")
                         .and(ArrayOperators.ArrayElemAt.arrayOf("images").elementAt(0)).as("image")
                         .and(ArithmeticOperators.Subtract.valueOf("price").subtract("discount")).as("price")
                         .and(ConditionalOperators.ifNull("stock").then(0)).as("stock")

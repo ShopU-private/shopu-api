@@ -56,9 +56,9 @@ public class ProductController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<Product>>> searchProducts(@RequestParam String query){
-        ApiResponse<List<Product>> response = productService.searchProducts(query);
+    @GetMapping("/search/{page}/{size}")
+    public ResponseEntity<ApiResponse<PagedResponse<Product>>> searchProducts(@PathVariable int page, @PathVariable int size, @RequestParam String query){
+        ApiResponse<PagedResponse<Product>> response = productService.searchProducts(page, size,query);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
