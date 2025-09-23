@@ -113,7 +113,10 @@ public class ProductServiceImpl implements ProductService {
         int skip = page * size;
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("category").regex(category.toUpperCase(), "i")),
-                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.sort(Sort.by(
+                        Sort.Order.desc("createdAt"),
+                        Sort.Order.desc("_id")
+                        )),
                 Aggregation.skip(skip),
                 Aggregation.limit(size)
         );
