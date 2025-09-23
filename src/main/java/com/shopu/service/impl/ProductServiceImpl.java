@@ -7,14 +7,10 @@ import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
 import com.shopu.model.entities.Product;
-import com.shopu.model.enums.Category;
 import com.shopu.repository.product.ProductRepository;
 import com.shopu.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -114,16 +110,33 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse<PagedResponse<Product>> fetchProduct(String category, int page, int size) {
-        Category c = Category.valueOf(category.toUpperCase());
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Product> response = productRepository.findAllByCategory(c, pageable);
-        PagedResponse<Product> pagedResponse = new PagedResponse<>(
-                response.getContent(),
-                response.getNumber(),
-                response.getTotalPages(),
-                response.isLast(),
-                response.isFirst()
+        int skip = page * size;
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("category").regex(category.toUpperCase(), "i")),
+                Aggregation.sort(Sort.Direction.DESC, "createdAt"),
+                Aggregation.skip(skip),
+                Aggregation.limit(size)
         );
+
+        List<Product> products = mongoTemplate.aggregate(
+                aggregation,
+                "product",
+                Product.class
+        ).getMappedResults();
+
+        Query countQuery = new Query(Criteria.where("category").regex(category.toUpperCase(), "i"));
+        long total = mongoTemplate.count(countQuery, Product.class);
+
+        int totalPages = (int) Math.ceil((double) total / size);
+
+        PagedResponse<Product> pagedResponse = new PagedResponse<>(
+                products,
+                page,
+                totalPages,
+                page >= totalPages - 1,
+                page == 0
+        );
+
         return new ApiResponse<>(pagedResponse, HttpStatus.OK);
     }
 

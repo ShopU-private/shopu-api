@@ -18,6 +18,4 @@ public enum DosageForm {
     SUSPENSION,
     GEL,
     KIT,
-
-
 }
