@@ -6,6 +6,7 @@ import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
+import com.shopu.model.dtos.response.ProductResponse;
 import com.shopu.model.entities.Product;
 import com.shopu.repository.product.ProductRepository;
 import com.shopu.service.ProductService;
@@ -22,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,12 +47,17 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse<Boolean> updateProduct(ProductUpdateRequest updateRequest) {
-        Product product = productRepository.findById(updateRequest.getProductId()).orElse(null);
+    public ApiResponse<Boolean> updateProduct(ProductResponse updateRequest) {
+        Product product = productRepository.findById(updateRequest.getId()).orElse(null);
         if(product == null){
             throw new ApplicationException("Product not found");
         }
         modelMapper.map(updateRequest, product);
+        product.getImages().clear();
+        product.setImages(updateRequest.getImages());
+        product.getComposition().clear();
+        product.setComposition(updateRequest.getComposition());
+        product.setUpdatedAt(LocalDateTime.now());
         productRepository.save(product);
         return new ApiResponse<>(true, HttpStatus.OK);
     }
@@ -144,28 +151,29 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse<PagedResponse<ProductListResponse>> fetchAllProducts(int page, int size) {
+    public ApiResponse<PagedResponse<ProductResponse>> fetchAllProducts(int page, int size) {
+        ///  We can migrate fetchProduct or fetchAllProducts API with concept of generic, make category nullable
        int skip = page * size;
 
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.sort(Sort.Direction.DESC, "createdAt"),
                 Aggregation.skip(skip),
-                Aggregation.limit(size),
-                Aggregation.project("_id", "name", "description", "category", "createdAt")
-                        .and(ArrayOperators.ArrayElemAt.arrayOf("images").elementAt(0)).as("image")
-                        .and(ArithmeticOperators.Subtract.valueOf("price").subtract("discount")).as("price")
-                        .and(ConditionalOperators.ifNull("stock").then(0)).as("stock")
+                Aggregation.limit(size)
+//                Aggregation.project("_id", "name", "description", "category", "createdAt")
+//                        .and(ArrayOperators.ArrayElemAt.arrayOf("images").elementAt(0)).as("image")
+//                        .and(ArithmeticOperators.Subtract.valueOf("price").subtract("discount")).as("price")
+//                        .and(ConditionalOperators.ifNull("stock").then(0)).as("stock")
         );
-        List<ProductListResponse> products = mongoTemplate.aggregate(
+        List<ProductResponse> products = mongoTemplate.aggregate(
                 aggregation,
                 "product",
-                ProductListResponse.class
+                ProductResponse.class
         ).getMappedResults();
 
         long total = mongoTemplate.count(new Query(), Product.class);
         int totalPages = (int) Math.ceil((double) total / size);
 
-        PagedResponse<ProductListResponse> pagedResponse = new PagedResponse<>(
+        PagedResponse<ProductResponse> pagedResponse = new PagedResponse<>(
                 products,
                 page,
                 totalPages,

@@ -5,6 +5,7 @@ import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
+import com.shopu.model.dtos.response.ProductResponse;
 import com.shopu.model.entities.Product;
 import com.shopu.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class ProductController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PutMapping("/update-product")
-    public ResponseEntity<ApiResponse<Boolean>> updateProduct(@RequestBody ProductUpdateRequest updateRequest){
+    public ResponseEntity<ApiResponse<Boolean>> updateProduct(@RequestBody ProductResponse updateRequest){
         ApiResponse<Boolean> response = productService.updateProduct(updateRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
@@ -45,8 +46,8 @@ public class ProductController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @GetMapping("/all/{page}/{size}")
-    public ResponseEntity<ApiResponse<PagedResponse<ProductListResponse>>> fetchAllProducts(@PathVariable int page, @PathVariable int size){
-        ApiResponse<PagedResponse<ProductListResponse>> response = productService.fetchAllProducts(page, size);
+    public ResponseEntity<ApiResponse<PagedResponse<ProductResponse>>> fetchAllProducts(@PathVariable int page, @PathVariable int size){
+        ApiResponse<PagedResponse<ProductResponse>> response = productService.fetchAllProducts(page, size);
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

@@ -7,8 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -16,12 +19,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductResponse {
-    // TODO Currently We do not use this DTO
+
     private String id;
     private String name;
     private String brand;
     private String manufacturerName;
-
     private Category category;
     private DosageForm dosageForm;
 
@@ -42,9 +44,10 @@ public class ProductResponse {
     private String safetyAdvice;
     private String safetyInformation;
 
-    private String storageInfo;        // e.g., "Store in cool dry place"
+    private String storageInfo;
     private String disclaimer;
 
+    private String hsnCode;
     private String manufacturerDetails;
     private String countryOfOrigin;
 
@@ -58,4 +61,6 @@ public class ProductResponse {
 
     private List<String> images;
     private int stock;
+    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 }

@@ -5,6 +5,7 @@ import com.shopu.model.dtos.requests.create.ProductCreateRequest;
 import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.ProductListResponse;
+import com.shopu.model.dtos.response.ProductResponse;
 import com.shopu.model.entities.Product;
 
 import java.util.List;
@@ -15,13 +16,13 @@ public interface ProductService {
 
     ApiResponse<PagedResponse<Product>> fetchProduct(String category, int page, int size);
 
-    ApiResponse<Boolean> updateProduct(ProductUpdateRequest updateRequest);
+    ApiResponse<Boolean> updateProduct(ProductResponse updateRequest);
 
     ApiResponse<Boolean> removeProduct(String id);
 
     ApiResponse<PagedResponse<Product>> searchProducts(int page, int size, String query);
 
-    ApiResponse<PagedResponse<ProductListResponse>> fetchAllProducts(int page, int size);
+    ApiResponse<PagedResponse<ProductResponse>> fetchAllProducts(int page, int size);
 
     ApiResponse<Long> getNoOfAllProducts();
 

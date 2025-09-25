@@ -44,7 +44,7 @@ public class CouponServiceImpl implements CouponService {
         }
 
         Coupon coupon = new Coupon();
-        coupon.setCode(createRequest.getCode());
+        coupon.setCode(createRequest.getCode().toUpperCase());
         coupon.setTitle(createRequest.getTitle());
         coupon.setDescription(createRequest.getDescription());
         coupon.setDiscountAmount(createRequest.getDiscountAmount());
@@ -155,13 +155,12 @@ public class CouponServiceImpl implements CouponService {
     }
 
     @Override
-    public boolean useCoupon(String userId, String couponCode) {
+    public void useCoupon(String userId, String couponCode) {
         UserCouponUsage couponUse = new UserCouponUsage();
         couponUse.setUserId(userId);
         couponUse.setCouponCode(couponCode);
         couponUse.setUsedAt(LocalDateTime.now());
         usageRepository.save(couponUse);
-        return true;
     }
 
     public int calculateDiscount(double orderAmount, double minOrderAmount, int couponDiscountAmount) {
