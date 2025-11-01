@@ -2,19 +2,16 @@ package com.shopu.model.dtos.requests.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class CartItemAddRequest {
-    private String userId;
+public class CartItemDTO {
     private String productId;
     private String imageUrl;
     private String productName;
     private double price;
-    private double discount;
+    private double discountedPrice;
     private int buyQuantity;
 }

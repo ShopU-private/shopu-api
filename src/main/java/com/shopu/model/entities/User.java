@@ -44,7 +44,6 @@ public class User implements UserDetails {
     private Role role;
 
     private List<String> orderIds;
-    private List<String> cartItemsId;
     private List<String> addressIds;
 
     @CreatedDate
@@ -76,7 +75,6 @@ public class User implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.createdAt = LocalDateTime.now();
         this.orderIds = new ArrayList<>();
-        this.cartItemsId = new ArrayList<>();
         this.addressIds = new ArrayList<>();
     }
 }

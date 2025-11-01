@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -16,6 +18,7 @@ public class CreateOrderRequest {
     private PaymentMode paymentMode;
     private int couponDiscountAmount;
     private String couponCode;
+    private List<CartItemDTO> items;
     @NotNull(message = "OrderAmount required")
     private float totalItemPrice;
     private float totalItemPriceWithDiscount;

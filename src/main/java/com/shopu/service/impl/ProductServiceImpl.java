@@ -3,21 +3,16 @@ package com.shopu.service.impl;
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
 import com.shopu.model.dtos.requests.create.ProductCreateRequest;
-import com.shopu.model.dtos.requests.update.ProductUpdateRequest;
 import com.shopu.model.dtos.response.PagedResponse;
-import com.shopu.model.dtos.response.ProductListResponse;
 import com.shopu.model.dtos.response.ProductResponse;
 import com.shopu.model.entities.Product;
-import com.shopu.repository.product.ProductRepository;
+import com.shopu.repository.common.ProductRepository;
 import com.shopu.service.ProductService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-import org.springframework.data.mongodb.core.aggregation.ConditionalOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
@@ -159,10 +154,6 @@ public class ProductServiceImpl implements ProductService {
                 Aggregation.sort(Sort.Direction.DESC, "createdAt"),
                 Aggregation.skip(skip),
                 Aggregation.limit(size)
-//                Aggregation.project("_id", "name", "description", "category", "createdAt")
-//                        .and(ArrayOperators.ArrayElemAt.arrayOf("images").elementAt(0)).as("image")
-//                        .and(ArithmeticOperators.Subtract.valueOf("price").subtract("discount")).as("price")
-//                        .and(ConditionalOperators.ifNull("stock").then(0)).as("stock")
         );
         List<ProductResponse> products = mongoTemplate.aggregate(
                 aggregation,

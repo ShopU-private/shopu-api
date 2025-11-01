@@ -32,13 +32,9 @@ public interface UserService {
 
     void updateLastSignIn(String id);
 
-    boolean updateCart(String userId, String cartItemId, boolean addItem);
-
     boolean updateAddress(String userId, String addressId, boolean addAddress);
 
     boolean updateOrder(String userId, String orderId);
-
-    List<String> clearCart(String userId);
 
     ApiResponse<Long> getNoOfAllUser();
 }

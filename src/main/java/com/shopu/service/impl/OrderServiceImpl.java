@@ -2,6 +2,7 @@ package com.shopu.service.impl;
 
 import com.shopu.common.utils.ApiResponse;
 import com.shopu.exception.ApplicationException;
+import com.shopu.model.dtos.requests.create.CartItemDTO;
 import com.shopu.model.dtos.requests.create.CreateOrderRequest;
 import com.shopu.model.dtos.response.PagedResponse;
 import com.shopu.model.dtos.response.order.OrderListResponseApp;
@@ -12,6 +13,7 @@ import com.shopu.model.enums.PaymentMode;
 import com.shopu.model.enums.PaymentStatus;
 import com.shopu.repository.common.OrderRepository;
 import com.shopu.service.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,9 +38,6 @@ import java.util.Map;
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
-    private CartItemService cartItemService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -56,21 +55,22 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private RazorpayService razorpayService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
     public ApiResponse<Order> placeOrder(CreateOrderRequest orderRequest) {
         User user = userService.findById(orderRequest.getUserId());
         if(user == null){
             throw new ApplicationException("User not found");
         }
+
         Address address = addressService.findById(orderRequest.getAddressId());
         if(address == null){
             throw new ApplicationException("Address not found");
         }
-        if(user.getCartItemsId().isEmpty()){
-            throw new ApplicationException("Cart is Empty");
-        }
 
-        List<CartItem> cartItems = cartItemService.fetchCartItems(user.getCartItemsId());
+        List<CartItem> cartItems = getCartItems(orderRequest.getItems());
 
         Order order = getOrder(orderRequest, cartItems, address);
         String id = orderRepository.save(order).getId();
@@ -80,54 +80,7 @@ public class OrderServiceImpl implements OrderService {
             couponService.useCoupon(orderRequest.getUserId(), orderRequest.getCouponCode());
         }
         // TODO update stock of product from cartItemServiceImpl layer by this API
-        cartItemService.deleteCartItems(user.getCartItemsId());
         return new ApiResponse<>(orderRepository.save(order), HttpStatus.CREATED);
-    }
-
-    private Order getOrder(CreateOrderRequest orderRequest, List<CartItem> cartItems, Address address) {
-        Order order = new Order();
-
-        if(orderRequest.getPaymentMode() != PaymentMode.COD){
-            Map<String, Object> paymentDetails = razorpayService.getPaymentDetails(orderRequest.getPaymentId());
-
-            if (orderRequest.getPaymentMode() == null && paymentDetails.get("method") != null) {
-                String method = paymentDetails.getOrDefault("method", "COD").toString().toUpperCase();
-                try {
-                    orderRequest.setPaymentMode(PaymentMode.valueOf(method));
-                } catch (IllegalArgumentException e) {
-                    orderRequest.setPaymentMode(PaymentMode.COD);
-                }
-            }
-
-            float paidAmount = ((int) paymentDetails.getOrDefault("amount", 0)) / 100f;
-            float orderAmount = orderRequest.getOrderAmount();
-
-            float codPending = Math.max(orderAmount - paidAmount, 0);
-            PaymentStatus paymentStatus = paidAmount == orderAmount
-                    ? PaymentStatus.PAID
-                    : (paidAmount > 0 ? PaymentStatus.PARTIAL_PAID : PaymentStatus.UNPAID);
-            order.setAmountPaidOnline(paidAmount);
-            order.setCodAmountPending(codPending);
-            order.setPaymentStatus(paymentStatus);
-        }else{
-            order.setCodAmountPending(orderRequest.getOrderAmount());
-            order.setPaymentStatus(PaymentStatus.UNPAID);
-        }
-        order.setUserId(orderRequest.getUserId());
-        order.setOrderId(generateOrderId());
-        order.setCouponDiscountAmount(orderRequest.getCouponDiscountAmount());
-        order.setCouponCode(orderRequest.getCouponCode());
-        order.setPaymentMode(orderRequest.getPaymentMode());
-        order.setTotalItemPrice(orderRequest.getTotalItemPrice());
-        order.setTotalItemPriceWithDiscount(orderRequest.getTotalItemPriceWithDiscount());
-        order.setDeliveryCharge(orderRequest.getDeliveryCharge());
-        order.setHandlingCharge(orderRequest.getHandlingCharge());
-        order.setSmallCartCharge(orderRequest.getSmallCartCharge());
-        order.setOrderAmount(orderRequest.getOrderAmount());
-        order.setPaymentId(orderRequest.getPaymentId());
-        order.setCartItems(cartItems);
-        order.setAddress(address);
-        return order;
     }
 
     @Override
@@ -362,6 +315,54 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+
+    /// Static methods
+    private Order getOrder(CreateOrderRequest orderRequest, List<CartItem> cartItems, Address address) {
+        Order order = new Order();
+
+        if(orderRequest.getPaymentMode() != PaymentMode.COD){
+            Map<String, Object> paymentDetails = razorpayService.getPaymentDetails(orderRequest.getPaymentId());
+
+            if (orderRequest.getPaymentMode() == null && paymentDetails.get("method") != null) {
+                String method = paymentDetails.getOrDefault("method", "COD").toString().toUpperCase();
+                try {
+                    orderRequest.setPaymentMode(PaymentMode.valueOf(method));
+                } catch (IllegalArgumentException e) {
+                    orderRequest.setPaymentMode(PaymentMode.COD);
+                }
+            }
+
+            float paidAmount = ((int) paymentDetails.getOrDefault("amount", 0)) / 100f;
+            float orderAmount = orderRequest.getOrderAmount();
+
+            float codPending = Math.max(orderAmount - paidAmount, 0);
+            PaymentStatus paymentStatus = paidAmount == orderAmount
+                    ? PaymentStatus.PAID
+                    : (paidAmount > 0 ? PaymentStatus.PARTIAL_PAID : PaymentStatus.UNPAID);
+            order.setAmountPaidOnline(paidAmount);
+            order.setCodAmountPending(codPending);
+            order.setPaymentStatus(paymentStatus);
+        }else{
+            order.setCodAmountPending(orderRequest.getOrderAmount());
+            order.setPaymentStatus(PaymentStatus.UNPAID);
+        }
+        order.setUserId(orderRequest.getUserId());
+        order.setOrderId(generateOrderId());
+        order.setCouponDiscountAmount(orderRequest.getCouponDiscountAmount());
+        order.setCouponCode(orderRequest.getCouponCode());
+        order.setPaymentMode(orderRequest.getPaymentMode());
+        order.setTotalItemPrice(orderRequest.getTotalItemPrice());
+        order.setTotalItemPriceWithDiscount(orderRequest.getTotalItemPriceWithDiscount());
+        order.setDeliveryCharge(orderRequest.getDeliveryCharge());
+        order.setHandlingCharge(orderRequest.getHandlingCharge());
+        order.setSmallCartCharge(orderRequest.getSmallCartCharge());
+        order.setOrderAmount(orderRequest.getOrderAmount());
+        order.setPaymentId(orderRequest.getPaymentId());
+        order.setCartItems(cartItems);
+        order.setAddress(address);
+        return order;
+    }
+
     private static String generateOrderId() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -372,5 +373,21 @@ public class OrderServiceImpl implements OrderService {
         String millis = String.valueOf(System.currentTimeMillis()).substring(8); // last few millis for uniqueness
 
         return "SUOD" + year + monthDay + hour + minute + millis;
+    }
+
+    private static List<CartItem> getCartItems(List<CartItemDTO> items) {
+        List<CartItem> cartItems = new ArrayList<>();
+
+        for (CartItemDTO item : items) {
+            CartItem cartItem = new CartItem();
+            cartItem.setProductId(item.getProductId());
+            cartItem.setImageUrl(item.getImageUrl());
+            cartItem.setProductName(item.getProductName());
+            cartItem.setPrice(item.getPrice());
+            cartItem.setDiscountedPrice(item.getDiscountedPrice());
+            cartItem.setBuyQuantity(item.getBuyQuantity());
+            cartItems.add(cartItem);
+        }
+        return cartItems;
     }
 }

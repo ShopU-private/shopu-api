@@ -127,35 +127,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateCart(String userId, String cartItemId, boolean addItem) {
-        User user = userRepository.findById(userId).orElse(null);
-
-        if(user == null) {
-            throw new ApplicationException("User not found");
-        }
-
-        if(addItem){
-            user.getCartItemsId().add(cartItemId);
-        }else {
-            user.getCartItemsId().remove(cartItemId);
-        }
-        userRepository.save(user);
-        return true;
-    }
-
-    @Override
-    public List<String> clearCart(String userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if(user == null) {
-            throw new ApplicationException("User not found");
-        }
-        List<String> cartItems = user.getCartItemsId();
-        user.getCartItemsId().clear();
-        userRepository.save(user);
-        return cartItems;
-    }
-
-    @Override
     public boolean updateAddress(String userId, String addressId, boolean addAddress) {
         User user = userRepository.findById(userId).orElse(null);
         if(user == null){
@@ -176,7 +147,6 @@ public class UserServiceImpl implements UserService {
         if(user == null){
             throw new ApplicationException("User not found");
         }
-        user.getCartItemsId().clear();
         user.getOrderIds().add(orderId);
         userRepository.save(user);
         return true;
