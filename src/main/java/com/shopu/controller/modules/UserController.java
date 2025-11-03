@@ -41,16 +41,23 @@ public class UserController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @GetMapping("/fetch")
+    public ApiResponse<List<User>> getAllUser(){
+        return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/add/prescription")
+    public ResponseEntity<ApiResponse<User>> addPrescription(@PathVariable String id, @RequestParam String prescriptionUrl){
+        ApiResponse<User> response = userService.addPrescription(id, prescriptionUrl);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> registerUser(@RequestBody UserCreateRequest createRequest){
         ApiResponse<User> response = userService.registerUser(createRequest);
         return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    @GetMapping("/fetch")
-    public ApiResponse<List<User>> getAllUser(){
-        return new ApiResponse<>(userService.getAllUser(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN')")

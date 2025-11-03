@@ -22,6 +22,8 @@ public interface UserService {
 
     ApiResponse<User> updateProfile(String id, UpdateProfileRequest updateRequest);
 
+    ApiResponse<User> addPrescription(String id, String prescriptionUrl);
+
     ApiResponse<PagedResponse<UserListResponse>> getAllUsers(int page, int size);
 
     User findByPhoneNumber(String phoneNumber);

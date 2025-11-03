@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,6 +82,25 @@ public class UserServiceImpl implements UserService {
         user.setName(updateRequest.getName());
         user.setEmail(updateRequest.getEmail());
         user.setWhatsappNumber(updateRequest.getWhatsappNumber());
+        return new ApiResponse<>(userRepository.save(user), HttpStatus.OK);
+    }
+
+    @Override
+    public ApiResponse<User> addPrescription(String id, String prescriptionUrl) {
+        if(prescriptionUrl.isEmpty()){
+            throw new ApplicationException("Empty Prescription");
+        }
+
+        User user = userRepository.findById(id).orElse(null);
+        if(user == null){
+            throw new ApplicationException("User not found");
+        }
+
+        if(user.getPrescriptions() == null){
+            user.setPrescriptions(new ArrayList<>());
+        }
+
+        user.getPrescriptions().add(prescriptionUrl);
         return new ApiResponse<>(userRepository.save(user), HttpStatus.OK);
     }
 

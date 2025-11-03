@@ -45,6 +45,7 @@ public class User implements UserDetails {
 
     private List<String> orderIds;
     private List<String> addressIds;
+    private List<String> prescriptions;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -76,5 +77,6 @@ public class User implements UserDetails {
         this.createdAt = LocalDateTime.now();
         this.orderIds = new ArrayList<>();
         this.addressIds = new ArrayList<>();
+        this.prescriptions = new ArrayList<>();
     }
 }
