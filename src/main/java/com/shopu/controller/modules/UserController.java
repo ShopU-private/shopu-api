@@ -52,7 +52,6 @@ public class UserController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-
     @PreAuthorize("hasAnyAuthority('ADMIN')")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<User>> registerUser(@RequestBody UserCreateRequest createRequest){
