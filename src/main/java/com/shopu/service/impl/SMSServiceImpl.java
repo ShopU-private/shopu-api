@@ -1,6 +1,5 @@
 package com.shopu.service.impl;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,9 +23,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Random;
 
@@ -115,8 +111,8 @@ public class SMSServiceImpl implements SMSService {
     }
 
     @Override
-    public boolean verifySmsOtp(String sessionId, String otp) {
-        String verifyOtpUrl ="https://2factor.in/API/V1/"+apiKey+"/SMS/VERIFY/"+sessionId+"/"+otp;
+    public boolean verifySmsOtp(String smsId, String otp) {
+        String verifyOtpUrl ="https://2factor.in/API/V1/"+apiKey+"/SMS/VERIFY/"+smsId+"/"+otp;
         try{
             ResponseEntity<Map<String, String>> response = restTemplate.exchange(
                     verifyOtpUrl,

@@ -17,6 +17,6 @@ public interface SMSService {
 
     String sendSmsOtp(String phoneNumber);
 
-    boolean verifySmsOtp(String sessionId, String otp);
+    boolean verifySmsOtp(String smsId, String otp);
 
 }
